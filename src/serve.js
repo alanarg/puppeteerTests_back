@@ -3,10 +3,12 @@ const puppeteer = require('puppeteer');
 const PesquisaPublica = require('./GEDCORP/gedcorp');
 const loginPesquisaAdm = require('./PESQUISAMS/login');
 const PesquisarAdm = require('./PESQUISAMS/pesquisar');
+const Categoria = require('./PESQUISAMS/categorias');
 const criarPesquisa = require('./PESQUISAMS/novaPesquisa');
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const cors = require('cors');
+const { Console } = require('console');
 
 
 
@@ -54,6 +56,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 app.post('/pesquisams_admin_login', async (req,res)=>{
     let i = 0;
+    let k =0;
     let y = 0;
 
     
@@ -65,14 +68,52 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     const casosFinais = [];
 
 
+    //logar
     try {
-        //logar
         await loginPesquisaAdm(req.body.login,page);
+    } catch (error) {
+        res.send(error);    
+    }
 
-
+    //Categorias
+    try {
         await page.waitForTimeout(3000);
 
-        await page.goto('http://hom.adm.pesquisa.ms.gov.br/admin/pesquisa');
+        await page.goto('http://localhost:4200/admin/categoria');
+
+        //vai para area pesquisa
+        while  (k<req.body.categoriaPesquisar.length) {
+            
+
+            // function logRequestCategoria(interceptedRequest) {
+            //     return respostas.push('Requests do pesquisar categoria:' + interceptedRequest.url());
+            // }
+
+            // page.on('request', logRequestCategoria);
+
+        
+            //limpa o formulário
+            await page.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+
+            //Injeta pesquisa categoria
+            await Categoria(req.body.categoriaPesquisar[k],page,k,casosFinais);
+
+
+            // page.off('request', logRequestCategoria);
+
+
+            k++;
+        }        
+    } catch (error) {
+        res.json(error);    
+
+    }
+
+    try {
+        
+        await page.waitForTimeout(3000);
+
+        await page.goto('http://localhost:4200/admin/pesquisa');
 
         //vai para area pesquisa
 
@@ -94,7 +135,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
             await page.waitForTimeout(3000);
 
-            await page.goto('http://hom.adm.pesquisa.ms.gov.br/admin/pesquisa/cadastrar');
+            await page.goto('http://localhost:4200/admin/pesquisa/cadastrar');
 
 
         while  (y<req.body.cadastrar.length) {
@@ -106,19 +147,48 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
             y++;
         }
+         res.json({result:'success', data:casosFinais})
 
         } catch (error) {
-            
+
         }
-        res.json({result:'success', data:casosFinais})
 
         
     } catch (error) {
-        res.json({erro:error});
+        res.json(error);
     
     }        
     
 });
 
-app.listen(8080);
+
+app.post('/teste_events', async (req,res)=>{
+
+    
+    const browser = await puppeteer.launch({headless:false});
+    
+    const page = await browser.newPage();
+
+    const respostas = [];
+
+    function logRequest(interceptedRequest) {
+        return respostas.push('A request was made:' + interceptedRequest.url());
+    }
+
+    page.waitForTimeout(3000);
+
+    page.on('request', logRequest);
+
+    await loginPesquisaAdm(req.body.login,page);
+    
+      // Sometime later...
+    page.off('request', logRequest);
+
+        
+
+    console.log(respostas);
+    
+});
+
+app.listen(3000);
 
