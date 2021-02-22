@@ -1,11 +1,5 @@
 const { default: jsPDF } = require('jspdf');
-const puppeteer = require('puppeteer');
-const {entradas} = require('../CasosDeTeste/GedcorpCasos');
-var doc = new jsPDF();
 fs = require('fs');
-
-const imageToBase64 = require('image-to-base64');
-const { request } = require('http');
 
 
 const criarPesquisa = async (req,page,i,c) =>{
@@ -17,7 +11,7 @@ const criarPesquisa = async (req,page,i,c) =>{
             let obj = {id:i, tipoDoTeste:"Criar pesquisa", urls:[],logs:[], print:''}
 
             //Ouvinte de requisições
-            page.on('request', async req => {
+            page.on('request',  req => {
                 // Ignore OPTIONS requests
                 // if (req.url().includes('/pesquisams/v1/')) {
                     return  obj.urls.push(req.url());
@@ -26,7 +20,7 @@ const criarPesquisa = async (req,page,i,c) =>{
             });
 
             //Ouvinte de logs
-            page.on('console', async log => { 
+            page.on('console',  log => { 
                 return  obj.logs.push(`Logs do caso ${i} `+log._text);
                 
             });
@@ -43,6 +37,20 @@ const criarPesquisa = async (req,page,i,c) =>{
 
             await page.keyboard.press('Tab');
             await page.keyboard.type(entradas.telefone);
+
+            await page.keyboard.press('Tab');
+
+            if(entradas.autenticacao==="true"){
+                await page.keyboard.press("Space");
+
+            }
+
+            await page.keyboard.press('Tab');
+
+            if(entradas.comsecao==="true"){
+                await page.keyboard.press("Space");
+
+            }
             
             await page.waitForTimeout(3000);
             await page.screenshot({path:`./src/public/PESQUISAMS_IMAGES/criarpesquisa_${i}.jpg`, fullPage:true}).then(t=>{

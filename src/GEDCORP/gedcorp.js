@@ -13,7 +13,7 @@ const PesquisaPublica = async (req,i) =>{
 
     const entradas = req;
     //Instancia o o navegador
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({headless:false});
     
     const page = await browser.newPage();
 

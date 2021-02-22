@@ -16,6 +16,8 @@
     "image-to-base64": "^2.1.1",
     "jspdf": "^2.3.0",
     "pdf-puppeteer": "^1.1.10",
-    "puppeteer": "^5.5.0"
+    "puppeteer": "^5.5.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
   }
 }

@@ -4,7 +4,10 @@ const PesquisaPublica = require('./GEDCORP/gedcorp');
 const loginPesquisaAdm = require('./PESQUISAMS/login');
 const PesquisarAdm = require('./PESQUISAMS/pesquisar');
 const Categoria = require('./PESQUISAMS/categorias');
+const criarBanner = require('./PESQUISAMS/novoBanner');
 const criarPesquisa = require('./PESQUISAMS/novaPesquisa');
+const criarCategoria = require('./PESQUISAMS/novaCategoria');
+
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const cors = require('cors');
@@ -58,6 +61,9 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     let i = 0;
     let k =0;
     let y = 0;
+    let j = 0;
+    let z = 0;
+
 
     
     const browser = await puppeteer.launch({headless:false});
@@ -79,7 +85,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     try {
         await page.waitForTimeout(3000);
 
-        await page.goto('http://localhost:4200/admin/categoria');
+        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/categoria');
 
         //vai para area pesquisa
         while  (k<req.body.categoriaPesquisar.length) {
@@ -113,7 +119,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         
         await page.waitForTimeout(3000);
 
-        await page.goto('http://localhost:4200/admin/pesquisa');
+        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/pesquisa');
 
         //vai para area pesquisa
 
@@ -129,35 +135,71 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
             i++;
         }
 
-        //Cadastrar nova pesquisa 
-        try {
+    } catch (error) {
+        res.json(error);
+    
+    } 
 
 
-            await page.waitForTimeout(3000);
+    //Cadastrar nova pesquisa 
+    try {
 
-            await page.goto('http://localhost:4200/admin/pesquisa/cadastrar');
+
+        await page.waitForTimeout(3000);
+
+        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/pesquisa/cadastrar');
 
 
-        while  (y<req.body.cadastrar.length) {
+        while  (y<req.body.cadastrarPesquisa.length) {
 
             //limpa o formulário
 
-            await criarPesquisa(req.body.cadastrar[y],page,y,casosFinais);
+            await criarPesquisa(req.body.cadastrarPesquisa[y],page,y,casosFinais);
             //  casosFinais.push();
 
             y++;
         }
-         res.json({result:'success', data:casosFinais})
 
-        } catch (error) {
+    } catch (error) {
 
+    }
+
+    
+    try {
+        //cadastrar categoria
+        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/categoria/cadastrar');
+
+        while  (j<req.body.cadastrarCategoria.length) {
+
+            //limpa o formulário
+            await criarCategoria(req.body.cadastrarCategoria[j],page,j,casosFinais);
+
+            //  casosFinais.push();
+
+            j++;
         }
 
-        
     } catch (error) {
-        res.json(error);
-    
-    }        
+        
+    }
+
+    try {
+        //cadastrar novo banner
+        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/banner/cadastrar');
+
+
+        while  (z<req.body.cadastrarBanner.length) {
+
+            await criarBanner(req.body.cadastrarBanner[z],page,z,casosFinais);
+
+
+            z++;
+        }
+
+
+    } catch (error) {
+        
+    }
     
 });
 
@@ -190,5 +232,7 @@ app.post('/teste_events', async (req,res)=>{
     
 });
 
-app.listen(3000);
+
+
+app.listen(8080);
 

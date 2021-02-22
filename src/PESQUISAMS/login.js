@@ -21,7 +21,7 @@ const loginPesquisaAdm = async (req,page) =>{
 
             
             //função de navegação por URL            
-            await page.goto('http://localhost:4200/portal/login');
+            await page.goto('http://des.adm.pesquisa.ms.gov.br/portal/login');
 
 
             
