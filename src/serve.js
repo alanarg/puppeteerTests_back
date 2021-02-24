@@ -73,7 +73,9 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
     const casosFinais = [];
 
+    try{
 
+    
     //logar
     try {
         await loginPesquisaAdm(req.body.login,page);
@@ -145,7 +147,6 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     try {
 
 
-        await page.waitForTimeout(3000);
 
         await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/pesquisa/cadastrar');
 
@@ -169,7 +170,10 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         //cadastrar categoria
         await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/categoria/cadastrar');
 
+        
         while  (j<req.body.cadastrarCategoria.length) {
+                
+            console.log(req.body.cadastrarCategoria[j]);
 
             //limpa o formulário
             await criarCategoria(req.body.cadastrarCategoria[j],page,j,casosFinais);
@@ -180,7 +184,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         }
 
     } catch (error) {
-        
+        console.log(error);
     }
 
     try {
@@ -195,11 +199,16 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
             z++;
         }
+        res.json({status:"ok"});
 
 
     } catch (error) {
         
     }
+
+}catch(error){
+    res.json({error:error});
+}
     
 });
 

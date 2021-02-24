@@ -9,15 +9,15 @@ const criarCategoria = async (req,page,i,c) =>{
     
         
             const fileData = await request({
-                uri: 'http://localhost:8080/filetest.png',
+                uri: 'http://localhost:8080/IMAGENS_TESTE/bird.jfif',
                 encoding: null
             }); 
             
-            await fs.writeFileSync('./src/public/file.png', fileData); 
+            await fs.writeFileSync('./src/public/bird.jfif', fileData); 
 
             const fileInput = await page.$('input[type=file]');
 
-            await fileInput.uploadFile('./src/public/file.png');
+            await fileInput.uploadFile('./src/public/bird.jfif');
 
             //criando resultado
             let obj = {id:i, tipoDoTeste:"Criar categoria", urls:[],logs:[], print:''}
