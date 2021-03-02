@@ -31,19 +31,29 @@ app.get('/',(req,res)=>{
 
 app.post('/gedcorp_publico', async (req,res,next)=>{
     let i =0;
-    const casosFinais = [];
-    console.log(req.body);
 
+        
+    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
+    
+    const page = await browser.newPage();
+
+
+    const casosFinais = [];
 
     try {
+        
+        //função de navegação por URL            
+        await page.goto('http://hom.gedcorp.ms.gov.br/publico/documento/SUFHUk8');
 
-        while  (i<req.body.length) {
-            console.log("laço");
-            casosFinais.push(await PesquisaPublica(req.body[i],i));
+        console.log(req.body.casos);
+        while  (i<req.body.casos.length) {
+            await PesquisaPublica(req.body.casos[i],page,i,casosFinais);
+
+            await page.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+
             i++;
         }
         // let v  = await PesquisaPublica(req.body);       
-        console.log(casosFinais);
          res.json({result:'success', data:casosFinais})
 
         
@@ -66,7 +76,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
 
     
-    const browser = await puppeteer.launch({headless:false});
+    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
     
     const page = await browser.newPage();
 
@@ -213,10 +223,10 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 });
 
 
-app.post('/teste_events', async (req,res)=>{
+app.post('/vale_universidade', async (req,res)=>{
 
     
-    const browser = await puppeteer.launch({headless:false});
+    const browser = await puppeteer.launch({headless:req.body.visualizarTeste});
     
     const page = await browser.newPage();
 

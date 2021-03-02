@@ -1,81 +1,37 @@
-const { default: jsPDF } = require('jspdf');
-const puppeteer = require('puppeteer');
-const {entradas} = require('../CasosDeTeste/GedcorpCasos');
-var doc = new jsPDF();
 fs = require('fs');
 
-const imageToBase64 = require('image-to-base64');
 
-
-const PesquisaPublica = async (req,i) =>{
-
-    const casosFinais = [];
-
-    const entradas = req;
-    //Instancia o o navegador
-    const browser = await puppeteer.launch({headless:false});
+const PesquisaPublica = async (entradas,page,i, c) =>{
     
-    const page = await browser.newPage();
-
-    // try {
-
-    //     //variável contadora
-    //     let i=0;
-      
-    
-
-    //     //Laço de repetição para rodar todos os casos da respectiva tela
-    //     while (i<req.length){
+            let obj = {id:i, urlsRequest:[],urlsResponse:[],logs:[], print:''}
         
-    //         //criando resultado
-            let obj = {id:i, urls:[],logs:[], print:''}
-            // casosFinais.push(obj);
-
-
-            
-            //função de navegação por URL            
-            await page.goto('http://hom.gedcorp.ms.gov.br/publico/documento/SUFHUk8');
-
-
-            
-              //Ouvinte de logs
-              await page.on('console', async (log) => { 
+            //Ouvinte de logs
+            await page.on('console', (log) => { 
                 
-                return await obj.logs.push(log._text);
-                
-                // await fs.writeFile(`./GEDCORP_${i}/logs_${i}.txt`, log._text, function (err) {
-                //     if (err) return console.log(err);
-                    
-                //  });
-
+                return  obj.logs.push(log._text);      
             });
 
             //Ouvinte de requisições
-            await page.on('response', async response => {
-
+            await page.on('response',  res => {
                 // Ignore OPTIONS requests
-                if(response.request().method() !== 'POST'){
+                return  obj.urlsResponse.push({url:res.url(), status:res.status(), resposta: res.text().then(r=>{return console.log(r)})});  
+            });
 
-                if (response.url().includes('/v1/documento')) {
-
-                   
-                    return  await obj.urls.push(JSON.stringify({url:response.url(), status:response.status()}));
-                  
-                };
-            }
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
             });
 
         
-
             await page.waitForSelector('input[id=Nome]');
 
-            await page.type('#Nome',entradas.nome, {delay:100});
-            await page.type('input.ng-untouched.ng-pristine.ng-valid','ANEXO', {delay:100});
-            await page.type('input#numero.form-control.input-sm.ng-untouched.ng-pristine.ng-valid',entradas.numero);
-            await page.type('input#data.p-inputmask.form-control.input-sm.p-inputtext.p-component', entradas.data,  {delay:100});
-            await page.type('input#assunto.form-control.input-sm.ng-untouched.ng-pristine.ng-valid',entradas.assunto, {delay:100});
-            await page.type('input#resumo.form-control.input-sm.ng-untouched.ng-pristine.ng-valid',entradas.resumo, {delay:100});
-            await page.type('input#texto.form-control.input-sm.ng-untouched.ng-pristine.ng-valid', entradas.texto_do_documento, {delay:100});
+            await page.type('input[id=Nome]',entradas.nome, {delay:100});
+            await page.type('input.ng-untouched.ng-pristine.ng-valid',entradas.tipo_documento, {delay:100});
+            await page.type('input[id=numero]',entradas.numero);
+            await page.type('input[id=data]', entradas.data,  {delay:100});
+            await page.type('input[id=assunto]',entradas.assunto, {delay:100});
+            await page.type('input[id=resumo]',entradas.resumo, {delay:100});
+            await page.type('input[id=texto]', entradas.texto_do_documento, {delay:100});
 
 
             //Clicando botão pesquisar
@@ -90,6 +46,10 @@ const PesquisaPublica = async (req,i) =>{
             await page.screenshot({path:`./src/public/GEDCORP_IMAGES/gedcorp_${i}.jpg`, fullPage:true}).then(t=>{
                 obj.print = `http://localhost:8080/GEDCORP_IMAGES/gedcorp_${i}.jpg`;
             }); 
+
+            page.off('response');
+            page.off('request');
+            page.off('console');
             
             //incrementando contador
         //     i++;
@@ -98,7 +58,7 @@ const PesquisaPublica = async (req,i) =>{
     // } catch (error) {
         
     // }
-    return obj;
+    return c.push(obj);
     
     
     
