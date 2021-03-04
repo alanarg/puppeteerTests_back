@@ -7,6 +7,9 @@ const Categoria = require('./PESQUISAMS/categorias');
 const criarBanner = require('./PESQUISAMS/novoBanner');
 const criarPesquisa = require('./PESQUISAMS/novaPesquisa');
 const criarCategoria = require('./PESQUISAMS/novaCategoria');
+const criarPergunta = require('./PESQUISAMS/criarPerguntas');
+const criarSecao = require('./PESQUISAMS/criarSecao');
+const editarPesquisa = require('./PESQUISAMS/editarPesquisa');
 
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -31,6 +34,7 @@ app.get('/',(req,res)=>{
 
 app.post('/gedcorp_publico', async (req,res,next)=>{
     let i =0;
+    let ambiente = req.body.ambiente;
 
         
     const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
@@ -43,7 +47,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
     try {
         
         //função de navegação por URL            
-        await page.goto('http://hom.gedcorp.ms.gov.br/publico/documento/SUFHUk8');
+        await page.goto(`http://${ambiente}/publico/documento/SUFHUk8`);
 
         console.log(req.body.casos);
         while  (i<req.body.casos.length) {
@@ -73,6 +77,11 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     let y = 0;
     let j = 0;
     let z = 0;
+    let w = 0 ;
+    let h = 0;
+    let l = 0;
+
+    let ambiente = req.body.ambiente;
 
 
     
@@ -88,16 +97,18 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     
     //logar
     try {
-        await loginPesquisaAdm(req.body.login,page);
+
+        await loginPesquisaAdm(req.body.login,page,ambiente);
     } catch (error) {
-        res.send(error);    
+        console.log(error);
+   
     }
 
     //Categorias
     try {
         await page.waitForTimeout(3000);
 
-        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/categoria');
+        await page.goto(`http://${ambiente}/admin/categoria`);
 
         //vai para area pesquisa
         while  (k<req.body.categoriaPesquisar.length) {
@@ -123,7 +134,8 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
             k++;
         }        
     } catch (error) {
-        res.json(error);    
+        console.log(error);
+
 
     }
 
@@ -131,7 +143,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         
         await page.waitForTimeout(3000);
 
-        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/pesquisa');
+        await page.goto(`http://${ambiente}/admin/pesquisa`);
 
         //vai para area pesquisa
 
@@ -148,7 +160,8 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         }
 
     } catch (error) {
-        res.json(error);
+        console.log(error);
+
     
     } 
 
@@ -156,15 +169,12 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     //Cadastrar nova pesquisa 
     try {
 
-
-
-        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/pesquisa/cadastrar');
+        await page.goto(`http://${ambiente}/admin/pesquisa/cadastrar`);
 
 
         while  (y<req.body.cadastrarPesquisa.length) {
 
             //limpa o formulário
-
             await criarPesquisa(req.body.cadastrarPesquisa[y],page,y,casosFinais);
             //  casosFinais.push();
 
@@ -172,13 +182,14 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         }
 
     } catch (error) {
+        console.log(error);
 
     }
 
     
     try {
         //cadastrar categoria
-        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/categoria/cadastrar');
+        await page.goto(`http://${ambiente}/admin/categoria/cadastrar`);
 
         
         while  (j<req.body.cadastrarCategoria.length) {
@@ -198,8 +209,9 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     }
 
     try {
+        
         //cadastrar novo banner
-        await page.goto('http://des.adm.pesquisa.ms.gov.br/admin/banner/cadastrar');
+        await page.goto(`http://${ambiente}/admin/banner/cadastrar`);
 
 
         while  (z<req.body.cadastrarBanner.length) {
@@ -209,12 +221,58 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
             z++;
         }
-        res.json({status:"ok"});
 
 
     } catch (error) {
+        console.log(error);
         
     }
+    try {
+       
+        let id_edit = req.body.editarPesquisa.id;
+
+        
+        //Editar Pesquisa 
+        await page.goto(`http://${ambiente}/admin/pesquisa/editar/${id_edit}`);
+
+        
+
+        await editarPesquisa(req.body.editarPesquisa,page,w,casosFinais);
+
+
+        
+        
+
+        //Criar Seção 
+        await page.goto(`http://${ambiente}/admin/pesquisa/editar/${id_edit}/consultar-secao/${id_edit}`);
+            
+        while  (l<req.body.criarSecao.secoes.length) {
+
+            await criarSecao(req.body.criarSecao.secoes[l],page,l,casosFinais);
+
+
+            l++;
+        }
+
+        //Criar Pergunta
+        await page.goto(`http://${ambiente}/admin/pesquisa/editar/${id_edit}/consultar-pergunta/${id_edit}`);
+            
+        while  (h<req.body.criarPergunta.perguntas.length) {
+
+            await criarPergunta(req.body.criarPergunta.perguntas[h],page,h,casosFinais);
+
+
+            h++;
+        }
+
+        
+
+
+    } catch (error) {
+        console.log(error);
+    }
+    await res.json({status:"ok"});
+    
 
 }catch(error){
     res.json({error:error});

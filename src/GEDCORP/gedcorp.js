@@ -14,7 +14,7 @@ const PesquisaPublica = async (entradas,page,i, c) =>{
             //Ouvinte de requisições
             await page.on('response',  res => {
                 // Ignore OPTIONS requests
-                return  obj.urlsResponse.push({url:res.url(), status:res.status(), resposta: res.text().then(r=>{return console.log(r)})});  
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
             });
 
             await page.on('request',  req => {

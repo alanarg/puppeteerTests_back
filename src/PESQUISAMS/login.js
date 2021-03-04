@@ -6,7 +6,7 @@ fs = require('fs');
 const imageToBase64 = require('image-to-base64');
 
 
-const loginPesquisaAdm = async (req,page) =>{
+const loginPesquisaAdm = async (req,page, ambiente) =>{
 
     const casosFinais = [];
 
@@ -21,7 +21,7 @@ const loginPesquisaAdm = async (req,page) =>{
 
             
             //função de navegação por URL            
-            await page.goto('http://des.adm.pesquisa.ms.gov.br/portal/login');
+            await page.goto(`http://${ambiente}/portal/login`);
 
 
             
