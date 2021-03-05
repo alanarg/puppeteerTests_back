@@ -4,17 +4,21 @@ const Categorias = async (req,page,i,c) =>{
 
             const entradas = req;
 
-            let obj = {id:i, tipoDoTeste:"Categorias", urls:[],logs:[], print:''}
+            let obj = {id:i, tipoDoTeste:"Categorias", urlsRequest:[],urlsResponse:[],logs:[], print:''}
 
 
-            function logRequest(interceptedRequest) {
-                return obj.urls.push('A request was made:' + interceptedRequest.url());
-            }
-          
-          
-            page.on('request', logRequest);
+           
+            //Ouvinte de requisições
+            await page.on('response',  res => {
+                // Ignore OPTIONS requests
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
+            });
 
-            
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
+            });
+
             //Ouvinte de logs
             page.on('console', log => { 
 
@@ -38,7 +42,8 @@ const Categorias = async (req,page,i,c) =>{
                 document.querySelector('a.btn.blue').click();            
             });
 
-            page.off('request', logRequest);
+            page.off('request');
+            page.off('response');
             page.off('console');
 
             
