@@ -7,7 +7,7 @@ const criarSecao = async (req,page,i,c) =>{
     const entradas = req;
 
             //criando resultado
-            let obj = {id:i, tipoDoTeste:"criarSecao", urls:[],logs:[], print:''}
+            let obj = {id:i, tipoDoTeste:"criarSecao", urlsRequest:[],urlsResponse:[],logs:[], print:''}
 
 
             await page.evaluate(t=>{
@@ -16,12 +16,14 @@ const criarSecao = async (req,page,i,c) =>{
 
             });           
             //Ouvinte de requisições
-            page.on('request',  req => {
+            await page.on('response',  res => {
                 // Ignore OPTIONS requests
-                // if (req.url().includes('/pesquisams/v1/')) {
-                    return  obj.urls.push(req.url());
-                  
-                // };
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
+            });
+
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
             });
 
             //Ouvinte de logs
@@ -57,6 +59,7 @@ const criarSecao = async (req,page,i,c) =>{
             });
 
             page.off('request');
+            page.off('response');
             page.off('console');
 
             

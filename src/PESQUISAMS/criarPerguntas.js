@@ -7,7 +7,7 @@ const criarPergunta = async (req,page,i,c) =>{
     const entradas = req;
 
             //criando resultado
-            let obj = {id:i, tipoDoTeste:"criarPergunta", urls:[],logs:[], print:''}
+            let obj = {id:i, tipoDoTeste:"criarPergunta", urlsRequest:[],urlsResponse:[],logs:[], print:''}
 
 
             await page.evaluate(t=>{
@@ -15,15 +15,17 @@ const criarPergunta = async (req,page,i,c) =>{
                 document.querySelector('a.btn.green.btn-flat.ng-star-inserted').click();            
 
             });           
+            
             //Ouvinte de requisições
-            page.on('request',  req => {
+            await page.on('response',  res => {
                 // Ignore OPTIONS requests
-                // if (req.url().includes('/pesquisams/v1/')) {
-                    return  obj.urls.push(req.url());
-                  
-                // };
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
             });
 
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
+            });
             //Ouvinte de logs
             page.on('console',  log => { 
 
@@ -58,6 +60,7 @@ const criarPergunta = async (req,page,i,c) =>{
             });
 
             page.off('request');
+            page.off('response');
             page.off('console');
 
             

@@ -8,17 +8,17 @@ const criarPesquisa = async (req,page,i,c) =>{
     
         
             //criando resultado
-            let obj = {id:i, tipoDoTeste:"Criar pesquisa", urls:[],logs:[], print:''}
-
-            //Ouvinte de requisições
-            page.on('request',  req => {
+            let obj = {id:i, tipoDoTeste:"Criar pesquisa", urlsRequest:[],urlsResponse:[],logs:[], print:''}
+             //Ouvinte de requisições
+             await page.on('response',  res => {
                 // Ignore OPTIONS requests
-                // if (req.url().includes('/pesquisams/v1/')) {
-                    return  obj.urls.push(req.url());
-                  
-                // };
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
             });
 
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
+            });
             //Ouvinte de logs
             page.on('console',  log => { 
                 return  obj.logs.push(`Logs do caso ${i} `+log._text);
@@ -63,6 +63,7 @@ const criarPesquisa = async (req,page,i,c) =>{
 
             
             page.off('request');
+            page.off('response');
             page.off('console');
 
             

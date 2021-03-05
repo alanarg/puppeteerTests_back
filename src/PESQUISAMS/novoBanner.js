@@ -20,17 +20,18 @@ const criarBanner = async (req,page,i,c) =>{
             await fileInput.uploadFile('./src/public/file.png');
 
             //criando resultado
-            let obj = {id:i, tipoDoTeste:"Criar banner", urls:[],logs:[], print:''}
+            let obj = {id:i, tipoDoTeste:"Criar banner", urlsRequest:[],urlsResponse:[],logs:[], print:''}
 
-            //Ouvinte de requisições
-            page.on('request', async req => {
+             //Ouvinte de requisições
+             await page.on('response',  res => {
                 // Ignore OPTIONS requests
-                // if (req.url().includes('/pesquisams/v1/')) {
-                    return  obj.urls.push(req.url());
-                  
-                // };
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
             });
 
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
+            });
             //Ouvinte de logs
             page.on('console', async log => { 
                 return  obj.logs.push(`Logs do caso ${i} `+log._text);
@@ -46,8 +47,8 @@ const criarBanner = async (req,page,i,c) =>{
 
 
 
-            await page.screenshot({path:`./src/public/PESQUISAMS_IMAGES/criarpesquisa_${i}.jpg`, fullPage:true}).then(t=>{
-                obj.print = `http://localhost:8080/PESQUISAMS_IMAGES/criarpesquisa_${i}.jpg`;
+            await page.screenshot({path:`./src/public/PESQUISAMS_IMAGES/criarbanner_${i}.jpg`, fullPage:true}).then(t=>{
+                obj.print = `http://localhost:8080/PESQUISAMS_IMAGES/criarbanner_${i}.jpg`;
             });
 
             await page.evaluate(t=>{
@@ -55,6 +56,7 @@ const criarBanner = async (req,page,i,c) =>{
             });
 
             page.off('request');
+            page.off('response');
             page.off('console');
             page.off('filedialog');
 

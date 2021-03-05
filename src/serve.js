@@ -57,8 +57,9 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
             i++;
         }
+        console.log(casosFinais);
         // let v  = await PesquisaPublica(req.body);       
-         res.json({result:'success', data:casosFinais})
+         res.json({result:'success', data:casosFinais});
 
         
     } catch (error) {
@@ -73,11 +74,11 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 app.post('/pesquisams_admin_login', async (req,res)=>{
     let i = 0;
-    let k =0;
+    let k = 0;
     let y = 0;
     let j = 0;
     let z = 0;
-    let w = 0 ;
+    let w = 0;
     let h = 0;
     let l = 0;
 
@@ -229,37 +230,37 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     }
     try {
        
-        let id_edit = req.body.editarPesquisa.id;
 
         
         //Editar Pesquisa 
-        await page.goto(`http://${ambiente}/admin/pesquisa/editar/${id_edit}`);
+        while(w<req.body.editarPesquisa.length) {
 
-        
+            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.editarPesquisa[w].id}`);
 
-        await editarPesquisa(req.body.editarPesquisa,page,w,casosFinais);
+            await editarPesquisa(req.body.editarPesquisa[w],page,w,casosFinais);
+            w++;
 
-
-        
+        }        
         
 
         //Criar Seção 
-        await page.goto(`http://${ambiente}/admin/pesquisa/editar/${id_edit}/consultar-secao/${id_edit}`);
             
-        while  (l<req.body.criarSecao.secoes.length) {
+        while  (l<req.body.criarSecao.length) {
+            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarSecao[l].id}/consultar-secao/${req.body.criarSecao[l].id}`);
 
-            await criarSecao(req.body.criarSecao.secoes[l],page,l,casosFinais);
+            await criarSecao(req.body.criarSecao[l],page,l,casosFinais);
 
 
             l++;
         }
 
         //Criar Pergunta
-        await page.goto(`http://${ambiente}/admin/pesquisa/editar/${id_edit}/consultar-pergunta/${id_edit}`);
-            
-        while  (h<req.body.criarPergunta.perguntas.length) {
+        console.log(req.body.criarPergunta);
 
-            await criarPergunta(req.body.criarPergunta.perguntas[h],page,h,casosFinais);
+        while  (h<req.body.criarPergunta.length) {
+            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarPergunta[h].id}/consultar-pergunta/${req.body.criarPergunta[h].id}`);
+
+            await criarPergunta(req.body.criarPergunta[h],page,h,casosFinais);
 
 
             h++;
@@ -271,7 +272,10 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     } catch (error) {
         console.log(error);
     }
-    await res.json({status:"ok"});
+
+    console.log(casosFinais);
+    await res.json({result:'success', data:casosFinais});
+
     
 
 }catch(error){

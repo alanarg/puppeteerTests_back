@@ -15,7 +15,7 @@ const PesquisarAdm = async (req,page,i,c) =>{
 
 
             //criando resultado
-            let obj = {id:i, tipoDoTeste:"Pesquisar", urls:[],logs:[], print:''}
+            let obj = {id:i, tipoDoTeste:"Pesquisar", urlsRequest:[],urlsResponse:[],logs:[], print:''}
             // casosFinais.push(obj);        
 
             
@@ -24,11 +24,15 @@ const PesquisarAdm = async (req,page,i,c) =>{
                 return obj.logs.push(`Logs do caso ${i} `+log._text);
             });
 
-            //Ouvinte de requisições
-            page.on('request',  req => {
-                
-                return obj.urls.push(req.url());                    
-    
+             //Ouvinte de requisições
+             await page.on('response',  res => {
+                // Ignore OPTIONS requests
+                return  obj.urlsResponse.push({url:res.url(), status:res.status()});  
+            });
+
+            await page.on('request',  req => {
+                // Ignore OPTIONS requests
+                return  obj.urlsRequest.push({url:req.url()});  
             });
 
             await page.waitForTimeout(3000);
@@ -52,6 +56,7 @@ const PesquisarAdm = async (req,page,i,c) =>{
            
             
             page.off('request');
+            page.off('response');
             page.off('console');
 
             
