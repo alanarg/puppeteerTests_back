@@ -3,9 +3,14 @@ fs = require('fs');
 
 
 const criarPergunta = async (req,page,i,c) =>{
-
     const entradas = req;
+    const j = 0;
 
+    const alterna = entradas.alternativas;
+
+
+
+                console.log(alterna);
             //criando resultado
             let obj = {id:i, tipoDoTeste:"criarPergunta", urlsRequest:[],urlsResponse:[],logs:[], print:''}
 
@@ -16,6 +21,9 @@ const criarPergunta = async (req,page,i,c) =>{
 
             });           
             
+            
+            
+        
             //Ouvinte de requisições
             await page.on('response',  res => {
                 // Ignore OPTIONS requests
@@ -35,17 +43,43 @@ const criarPergunta = async (req,page,i,c) =>{
            
             await page.waitForTimeout(3000);
             
-            await page.type('input#Descricao.form-control.input-sm.ng-untouched.ng-pristine.ng-invalid',entradas.descricao , {delay:100});
-            await page.type('select#TipoPergunta.form-control.input-sm.ng-untouched.ng-pristine.ng-valid',entradas.tipoPergunta, {delay:100});
-            await page.type('input[id=Ordem]',entradas.ordem, {delay:100});
+            await page.type('input#Descricao.form-control.input-sm.ng-untouched.ng-pristine.ng-invalid',entradas.pergunta.descricao , {delay:100});
+            await page.type('select#TipoPergunta.form-control.input-sm.ng-untouched.ng-pristine.ng-valid',entradas.pergunta.tipoPergunta, {delay:100});
+            await page.type('input[id=Ordem]',entradas.pergunta.ordem, {delay:100});
 
             await page.keyboard.press('Tab');
 
-            if(entradas.obrigatorio==="true"){
-
+            if(entradas.pergunta.obrigatorio==="true"){
                 await page.keyboard.press("Space");
-
             }
+          
+             
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Space');
+                await page.waitForTimeout(1000);
+        
+            if(entradas.pergunta.tipoPergunta==="Intensidade"||entradas.pergunta.tipoPergunta==="Múltipla Escolha"||entradas.pergunta.tipoPergunta==="Caixa de Seleção"){
+                await page.keyboard.press('Tab');
+                await page.keyboard.type(alterna.descricao);
+                await page.keyboard.press('Tab');
+                await page.keyboard.type(alterna.ordem);
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Tab');
+                await page.keyboard.press('Space');
+
+
+
+
+            
+            }
+
+        
+
+
+
 
             await page.waitForTimeout(3000);
 
@@ -53,16 +87,12 @@ const criarPergunta = async (req,page,i,c) =>{
                 obj.print = `http://localhost:8080/PESQUISAMS_IMAGES/criarpergunta_${i}.jpg`;
             });
 
-            await page.evaluate(t=>{
+           
 
-                document.querySelector('button.btn.green.default.ng-star-inserted').click();
-
-            });
-
-            page.off('request');
-            page.off('response');
-            page.off('console');
-
+            await page.off('request');
+            await page.off('response');
+            await page.off('console');
+ 
             
     return c.push(obj);
     
