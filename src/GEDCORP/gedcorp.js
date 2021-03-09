@@ -47,9 +47,9 @@ const PesquisaPublica = async (entradas,page,i, c) =>{
                 obj.print = `http://localhost:8080/GEDCORP_IMAGES/gedcorp_${i}.jpg`;
             }); 
 
-            page.off('response');
-            page.off('request');
-            page.off('console');
+            await page.off('response');
+            await page.off('request');
+            await page.off('console');
             
             //incrementando contador
         //     i++;
