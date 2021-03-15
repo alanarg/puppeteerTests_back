@@ -2,7 +2,7 @@ fs = require('fs');
 
 
 const PesquisaPublica = async (entradas,page,i, c) =>{
-    
+     
             let obj = {id:i, urlsRequest:[],urlsResponse:[],logs:[], print:''}
         
             //Ouvinte de logs

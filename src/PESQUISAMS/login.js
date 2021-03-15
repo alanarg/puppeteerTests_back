@@ -1,6 +1,4 @@
-const { default: jsPDF } = require('jspdf');
-const {entradas} = require('../CasosDeTeste/GedcorpCasos');
-var doc = new jsPDF();
+
 fs = require('fs');
 
 const imageToBase64 = require('image-to-base64');

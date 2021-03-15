@@ -9,9 +9,10 @@ const criarPesquisa = require('./PESQUISAMS/novaPesquisa');
 const criarCategoria = require('./PESQUISAMS/novaCategoria');
 const criarPergunta = require('./PESQUISAMS/criarPerguntas');
 const criarPerguntaComSecao = require('./PESQUISAMS/criarPerguntaComSecao');
-
 const criarSecao = require('./PESQUISAMS/criarSecao');
 const editarPesquisa = require('./PESQUISAMS/editarPesquisa');
+
+const loginCadmim = require('./CADMIMS/login');
 
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -222,8 +223,6 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     try {
         
         //cadastrar novo banner
-
-
         while  (z<req.body.cadastrarBanner.length) {
             await page.goto(`http://${ambiente}/admin/banner/cadastrar`);
 
@@ -241,8 +240,6 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     }
     try {
        
-
-        
         //Editar Pesquisa 
         while(w<req.body.editarPesquisa.length) {
 
@@ -253,9 +250,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
         }        
         
-
-        //Criar Seção 
-            
+        //Criar Seção  
         while  (l<req.body.criarSecao.length) {
             await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarSecao[l].id}/consultar-secao/${req.body.criarSecao[l].id}`);
 
@@ -274,32 +269,68 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
             h++;
         }
-
         //Criar Pergunta com seção
         while  (q<req.body.criarPerguntaComSecao.length) {
             await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarPerguntaComSecao[q].pergunta.id}/consultar-pergunta/${req.body.criarPerguntaComSecao[q].pergunta.id}`);
 
             await criarPerguntaComSecao(req.body.criarPerguntaComSecao[q],page,q,casosFinais);
-
-
             q++;
         }
-
-
     } catch (error) {
+
         res.status(400);
         res.send('error'+error);
+
     }
 
     console.log(casosFinais);
-    await res.json({result:'success', data:casosFinais});
 
-    
+    await res.json({result:'success', data:casosFinais});
 
 }catch(error){
     res.status(400);
     res.send('error'+error);
 }
+    
+});
+
+//CADMIM
+app.post('/cadmims', async (req,res)=>{
+
+    let q = 0;
+
+    let ambiente = req.body.ambiente;
+
+    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
+    
+    const page = await browser.newPage();
+
+
+    const casosFinais = [];
+
+    try {
+
+        //fazer login
+        await page.goto(`http://${ambiente}/`);
+        await loginCadmim(req.body.login,page,casosFinais);
+
+    } catch (error) {
+
+        res.status(400);
+        res.send('error'+error);
+    }
+    try {
+
+        //fazer login
+
+        await page.goto(`http://${ambiente}/cadastro`);
+        await dadosCadastraisCadmim(req.body.dadosCadastrais,page,casosFinais);
+
+    } catch (error) {
+
+        res.status(400);
+        res.send('error'+error);
+    }
     
 });
 
