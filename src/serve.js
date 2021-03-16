@@ -40,7 +40,11 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
     let ambiente = req.body.ambiente;
 
         
-    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
+    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste,
+        'args' : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+          ]});
     
     const page = await browser.newPage();
 
@@ -91,7 +95,13 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
 
     
-    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
+    const browser = await puppeteer.launch(
+    {headless:!req.body.visualizarTeste,
+        'args' : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+          ]
+    });
     
     const page = await browser.newPage();
 
@@ -336,8 +346,6 @@ app.post('/cadmims', async (req,res)=>{
 
 
 app.post('/vale_universidade', async (req,res)=>{
-
-    
     const browser = await puppeteer.launch({headless:req.body.visualizarTeste});
     
     const page = await browser.newPage();
@@ -357,16 +365,15 @@ app.post('/vale_universidade', async (req,res)=>{
       // Sometime later...
     page.off('request', logRequest);
 
-        
-
     console.log(respostas);
     
 });
 
-
 let port = process.env.PORT;
+
 if (port == null || port == "") {
   port = 8000;
 }
+
 app.listen(port);
 
