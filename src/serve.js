@@ -41,10 +41,16 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
         
     const browser = await puppeteer.launch({headless:!req.body.visualizarTeste,
-        'args' : [
-            '--no-sandbox',
-            '--disable-setuid-sandbox'
-          ]});
+        
+            headless: true,
+            defaultViewport: null,
+            args: [
+                "--incognito",
+                "--no-sandbox",
+                "--single-process",
+                "--no-zygote"
+            ]
+        });
     
     const page = await browser.newPage();
 
@@ -97,10 +103,14 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
     
     const browser = await puppeteer.launch(
     {headless:!req.body.visualizarTeste,
-        'args' : [
-            '--no-sandbox',
-            '--disable-setuid-sandbox'
-          ]
+        headless: true,
+            defaultViewport: null,
+            args: [
+                "--incognito",
+                "--no-sandbox",
+                "--single-process",
+                "--no-zygote"
+            ]
     });
     
     const page = await browser.newPage();
@@ -112,17 +122,12 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
     
     //logar
-    try {
-
-        await loginPesquisaAdm(req.body.login,page,ambiente);
-    } catch (error) {
-        res.status(400);
-        res.send('error'+error);
    
-    }
 
+    await loginPesquisaAdm(req.body.login,page,ambiente);
+   
     //Categorias
-    try {
+    
         await page.waitForTimeout(3000);
 
 
@@ -151,14 +156,9 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
             k++;
         }        
-    } catch (error) {
-        res.status(400);
-        res.send('error'+error);
+   
 
-
-    }
-
-    try {
+   
         
         await page.waitForTimeout(3000);
 
@@ -178,16 +178,11 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
             i++;
         }
 
-    } catch (error) {
-        res.status(400);
-        res.send('error'+error);
-
     
-    } 
 
 
     //Cadastrar nova pesquisa 
-    try {
+    
 
 
 
@@ -201,14 +196,10 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
             y++;
         }
 
-    } catch (error) {
-        res.status(400);
-        res.send('error'+error);
-
-    }
+    
 
     
-    try {
+    
         //cadastrar categoria
 
         
@@ -225,12 +216,9 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
             j++;
         }
 
-    } catch (error) {
-        res.status(400);
-        res.send('error'+error);
-    }
+    
 
-    try {
+    
         
         //cadastrar novo banner
         while  (z<req.body.cadastrarBanner.length) {
@@ -243,12 +231,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
         }
 
 
-    } catch (error) {
-        res.status(400);
-        res.send('error'+error);
-        
-    }
-    try {
+    
        
         //Editar Pesquisa 
         while(w<req.body.editarPesquisa.length) {
@@ -286,22 +269,18 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
             await criarPerguntaComSecao(req.body.criarPerguntaComSecao[q],page,q,casosFinais);
             q++;
         }
-    } catch (error) {
-
-        res.status(400);
-        res.send('error'+error);
-
-    }
-
-    console.log(casosFinais);
-
-    await res.json({result:'success', data:casosFinais});
-
-}catch(error){
-    res.status(400);
-    res.send('error'+error);
-}
     
+
+        console.log(casosFinais);
+
+        await res.json({result:'success', data:casosFinais});
+
+        } catch (error) {
+
+            res.status(400);
+            res.send('error'+error);
+
+        }
 });
 
 //CADMIM
