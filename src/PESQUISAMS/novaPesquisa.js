@@ -54,7 +54,7 @@ const criarPesquisa = async (req,page,i,c) =>{
             
             await page.waitForTimeout(3000);
             await page.screenshot({path:`./src/public/PESQUISAMS_IMAGES/criarpesquisa_${i}.jpg`, fullPage:true}).then(t=>{
-                obj.print = `http://localhost:8080/PESQUISAMS_IMAGES/criarpesquisa_${i}.jpg`;
+                obj.print = `${process.env.URL_SYSTEM}/PESQUISAMS_IMAGES/criarpesquisa_${i}.jpg`;
             });
 
             await page.evaluate(t=>{

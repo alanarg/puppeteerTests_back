@@ -45,7 +45,7 @@ const PesquisarAdm = async (req,page,i,c) =>{
 
              //Tirando print assim que o botão pesquisar é acionado
              await page.screenshot({path:`./src/public/PESQUISAMS_IMAGES/pesquisar_${i}.jpg`, fullPage:true}).then(t=>{
-                 obj.print = `http://localhost:8080/PESQUISAMS_IMAGES/pesquisar_${i}.jpg`;
+                 obj.print = `${process.env.URL_SYSTEM}/PESQUISAMS_IMAGES/pesquisar_${i}.jpg`;
              });
 
             await page.evaluate(()=>{ return document.querySelector('a.btn.blue').click();});

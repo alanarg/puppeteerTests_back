@@ -43,7 +43,7 @@ const criarCategoria = async (req,page,i,c) =>{
             await page.type('input[id=Descricao]',entradas.descricao, {delay:100});
 
             await page.screenshot({path:`./src/public/PESQUISAMS_IMAGES/criarcategoria_${i}.jpg`, fullPage:true}).then(t=>{
-                obj.print = `http://localhost:8080/PESQUISAMS_IMAGES/criarcategoria_${i}.jpg`;
+                obj.print = `${process.env.URL_SYSTEM}/PESQUISAMS_IMAGES/criarcategoria_${i}.jpg`;
             });
 
             await page.evaluate(t=>{

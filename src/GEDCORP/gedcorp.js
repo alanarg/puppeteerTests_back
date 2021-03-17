@@ -44,7 +44,7 @@ const PesquisaPublica = async (entradas,page,i, c) =>{
 
             //Tirando print assim que o botão pesquisar é acionado
             await page.screenshot({path:`./src/public/GEDCORP_IMAGES/gedcorp_${i}.jpg`, fullPage:true}).then(t=>{
-                obj.print = `https://puppeteer-back.herokuapp.com/GEDCORP_IMAGES/gedcorp_${i}.jpg`;
+                obj.print = `${process.env.URL_SYSTEM}/GEDCORP_IMAGES/gedcorp_${i}.jpg`;
             }); 
 
             await page.off('response');

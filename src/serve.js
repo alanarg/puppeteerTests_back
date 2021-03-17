@@ -19,7 +19,9 @@ const fs = require("fs");
 const cors = require('cors');
 const { Console } = require('console');
 
-
+if(process.env.NODE_ENV !== 'production'){
+    require('dotenv').config()
+}
 
 const app = express();
 
@@ -40,8 +42,11 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
     let ambiente = req.body.ambiente;
 
         
-    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste,
-        
+    const browser = await puppeteer.launch({
+        // usar local caso queira visualizar teste
+        // headless:!req.body.visualizarTeste,
+
+            //Configuração do lauch() para rodar sem problemas no heroku
             headless: true,
             defaultViewport: null,
             args: [
@@ -102,7 +107,8 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
     
     const browser = await puppeteer.launch(
-    {headless:!req.body.visualizarTeste,
+    {
+        // headless:!req.body.visualizarTeste,
         headless: true,
             defaultViewport: null,
             args: [
@@ -348,11 +354,6 @@ app.post('/vale_universidade', async (req,res)=>{
     
 });
 
-let port = process.env.PORT;
 
-if (port == null || port == "") {
-  port = 8000;
-}
-
-app.listen(port);
+app.listen(process.env.PORT);
 
