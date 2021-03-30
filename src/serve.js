@@ -13,13 +13,26 @@ const criarSecao = require('./PESQUISAMS/criarSecao');
 const editarPesquisa = require('./PESQUISAMS/editarPesquisa');
 
 const loginCadmim = require('./CADMIMS/login');
+const dadosCadastraisCadmims = require('./CADMIMS/dadosCadastrais');
+const dadosMigracao = require('./CADMIMS/dadosMigracao');
+
+
+const mongoose = require( 'mongoose' ); 
+
+mongoose.connect(
+    "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
+    // "mongodb://localhost/noderest",
+    { useUnifiedTopology:true, useNewUrlParser:true },
+    () => console.log(" Mongoose is connected")
+);
 
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const cors = require('cors');
+const Rules = require("./models/regra_schema.js");
 const { Console } = require('console');
 
-if(process.env.NODE_ENV !== 'production'){
+if(process.env.NODE_ENV !== 'production'){ 
     require('dotenv').config()
 }
 
@@ -296,10 +309,9 @@ app.post('/cadmims', async (req,res)=>{
 
     let ambiente = req.body.ambiente;
 
-    const browser = await puppeteer.launch({headless:!req.body.visualizarTeste});
+    const browser = await puppeteer.launch({headless:false});
     
     const page = await browser.newPage();
-
 
     const casosFinais = [];
 
@@ -309,18 +321,25 @@ app.post('/cadmims', async (req,res)=>{
         await page.goto(`http://${ambiente}/`);
         await loginCadmim(req.body.login,page,casosFinais);
 
-    } catch (error) {
+        page.waitForTimeout(3000);
 
-        res.status(400);
-        res.send('error'+error);
-    }
-    try {
+    
+        //Dados cadastrais
+        await dadosCadastraisCadmims(req.body.dadosCadastrais,page,casosFinais);
 
-        //fazer login
 
-        await page.goto(`http://${ambiente}/cadastro`);
-        await dadosCadastraisCadmim(req.body.dadosCadastrais,page,casosFinais);
+        page.waitForTimeout(3000);
 
+        // Dados Migração
+
+        await page.goto(`http://${ambiente}/cadastro/1/2`);
+
+        await dadosMigracao(req.body.dadosMigracao,page,casosFinais);
+
+        
+        res.status(200);
+        res.send('success');
+""
     } catch (error) {
 
         res.status(400);
@@ -354,6 +373,25 @@ app.post('/vale_universidade', async (req,res)=>{
     
 });
 
+
+// CRUD de regras do sistema
+
+app.post("/regra", async (req, res) => {
+    try {
+   
+    console.log(req.body);
+
+    const regras = await Rules.create(req.body);
+    
+    console.log(regras);
+
+    return res.json(regras);
+
+    } catch (err) {
+        console.log(err);
+      return res.json({ result: "error", message: err });
+    }
+  });
 
 app.listen(process.env.PORT);
 
