@@ -5,7 +5,7 @@ fs = require('fs');
 const loginCadmim = async (req,page,c) =>{
     const entradas = req;        
             //criando resultado
-            let obj = {id:i, urls:[],logs:[], print:''}
+            let obj = { urls:[],logs:[], print:''}
 
             //Ouvinte de logs
             await page.on('console', async (log) => { 
@@ -23,9 +23,12 @@ const loginCadmim = async (req,page,c) =>{
 
             await page.type('input[id=usuario]',entradas.nome, {delay:100});
             await page.type('input[id=senha]',entradas.senha, {delay:100});
-            await page.type('select[id=dominio]',entradas.dominio, {delay:100});
+            await page.type('input[id=dominio]',entradas.dominio, {delay:100});
 
-            await page.evaluate(()=>{ return document.querySelector('button').click();});
+            //Essa função abaixo substitui essa
+            // await page.evaluate(()=>{ return document.querySelector('button').click();});
+            await page.$eval( 'button', btn =>{ return btn.click();});
+
 
             page.off('console');
             page.off('response');
