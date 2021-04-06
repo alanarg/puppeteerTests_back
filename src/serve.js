@@ -16,6 +16,7 @@ const loginCadmim = require('./CADMIMS/login');
 const dadosCadastraisCadmims = require('./CADMIMS/dadosCadastrais');
 const dadosMigracao = require('./CADMIMS/dadosMigracao');
 
+const Regra = require('./models/regra');
 
 const mongoose = require( 'mongoose' ); 
 
@@ -29,7 +30,6 @@ mongoose.connect(
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const cors = require('cors');
-const Rules = require("./models/regra_schema.js");
 const { Console } = require('console');
 
 if(process.env.NODE_ENV !== 'production'){ 
@@ -54,8 +54,10 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
     let i =0;
     let ambiente = req.body.ambiente;
 
+    try {
+            
         
-    const browser = await puppeteer.launch({
+        const browser = await puppeteer.launch({
         // usar local caso queira visualizar teste
         // headless:!req.body.visualizarTeste,
 
@@ -70,12 +72,11 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
             ]
         });
     
-    const page = await browser.newPage();
+        const page = await browser.newPage();
 
 
-    const casosFinais = [];
-
-    try {
+         const casosFinais = [];
+   
         
         //função de navegação por URL            
         await page.goto(`http://${ambiente}/publico/documento/SUFHUk8`);
@@ -375,23 +376,50 @@ app.post('/vale_universidade', async (req,res)=>{
 
 
 // CRUD de regras do sistema
-
 app.post("/regra", async (req, res) => {
     try {
-   
-    console.log(req.body);
-
-    const regras = await Rules.create(req.body);
-    
-    console.log(regras);
-
-    return res.json(regras);
+        const regras = await Regra.create(req.body);
+        return res.json(regras);
 
     } catch (err) {
+    
         console.log(err);
       return res.json({ result: "error", message: err });
     }
-  });
+});
+
+app.get("/regra/:sistema/:funcionalidade", async (req, res) => {
+
+     await Regra.find({ 'sistema': req.params.sistema, 'funcionalidade':req.params.funcionalidade}, function (err, docs) {
+        if(!err){
+        
+            return res.json(docs);
+
+        }else{
+
+            return console.log(err);
+        }
+    });
+
+});
+
+app.put("/regra/:id", async (req, res) => {
+    const r = await Regra.findByIdAndUpdate(req.params.id, req.body,{new:true});
+    return res.json(r);
+
+    
+});
+
+app.delete("/regra/:id", async (req, res) => {
+    try {
+        await Regra.findByIdAndDelete(req.params.id);
+
+        res.json({message:'successes'})
+        
+    } catch (error) {
+        res.json(error)        
+    }
+});
 
 app.listen(process.env.PORT);
 
