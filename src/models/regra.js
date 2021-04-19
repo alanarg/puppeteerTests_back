@@ -6,6 +6,10 @@ const RegraSchema = new mongoose.Schema({
         required:true
 
     },
+    titulo:{
+        type:String,
+        required: true
+    },
     funcionalidade: {
         type:String,
         required: true
