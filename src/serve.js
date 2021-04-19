@@ -297,8 +297,8 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
         } catch (error) {
 
-            res.status(400);
-            res.send('error'+error);
+            res.json({result:'fail', data:casosFinais});
+      
 
         }
 });
