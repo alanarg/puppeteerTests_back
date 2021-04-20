@@ -38,7 +38,7 @@ if(process.env.NODE_ENV !== 'production'){
 
 const app = express();
 
-app.use(cors({origin:'https://g08.netlify.app'}));
+app.use(cors({origin:['https://g08.netlify.app','http://localhost:3000']}));
 
 app.use(express.static(__dirname + '/public'));
 
@@ -293,11 +293,10 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
         console.log(casosFinais);
 
-        await res.json({result:'success', data:casosFinais});
+        return await res.json({result:'success', data:casosFinais});
 
         } catch (error) {
-
-            res.json({result:'fail', data:casosFinais});
+           return res.json({result:error, data:casosFinais});
       
 
         }
