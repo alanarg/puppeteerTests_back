@@ -38,7 +38,7 @@ if(process.env.NODE_ENV !== 'production'){
 
 const app = express();
 
-app.use(cors());
+app.use(cors({origin:'https://g08.netlify.app'}));
 
 app.use(express.static(__dirname + '/public'));
 
