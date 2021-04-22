@@ -130,14 +130,14 @@ app.post('/pesquisams_admin_login', async (req,res,next)=>{
     const browser = await puppeteer.launch(
     {
         // headless:!req.body.visualizarTeste,
-        headless: false
-            // defaultViewport: null,
-            // args: [
-            //     "--incognito",
-            //     "--no-sandbox",
-            //     "--single-process",
-            //     "--no-zygote"
-            // ]
+        headless: true,
+            defaultViewport: null,
+            args: [
+                "--incognito",
+                "--no-sandbox",
+                "--single-process",
+                "--no-zygote"
+            ]
     });
     
     const page = await browser.newPage();
