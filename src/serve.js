@@ -106,7 +106,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 });
 
-app.post('/pesquisams_admin_login', async (req,res)=>{
+app.post('/pesquisams_admin_login', async (req,res,next)=>{
     let i = 0;
     let k = 0;
     let y = 0;
