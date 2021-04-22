@@ -36,9 +36,23 @@ if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
 
+var whitelist = ['https://g08.netlify.app','http://localhost:3000']
+
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
+
+
+
 const app = express();
 
-app.use(cors({origin:['https://g08.netlify.app','http://localhost:3000']}));
 
 app.use(express.static(__dirname + '/public'));
 
@@ -105,7 +119,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 });
 
-app.post('/pesquisams_admin_login', async (req,res)=>{
+app.post('/pesquisams_admin_login', cors(corsOptions), async (req,res)=>{
     let i = 0;
     let k = 0;
     let y = 0;
@@ -293,10 +307,11 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
         console.log(casosFinais);
 
-        return await res.json({result:'success', data:casosFinais});
+            return await res.json({result:'success', data:casosFinais});
 
         } catch (error) {
-           return res.json({result:error, data:casosFinais});
+
+            return res.json({result:error, data:casosFinais});
       
 
         }
