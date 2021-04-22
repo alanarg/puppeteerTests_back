@@ -36,7 +36,7 @@ if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
 
-var whitelist = ['https://g08.netlify.app','http://localhost:3000']
+var whitelist = ['https://g08.netlify.app/PESQUISAMS_ADMIN','https://g08.netlify.app','http://localhost:3000']
 
 var corsOptions = {
   origin: function (origin, callback) {
