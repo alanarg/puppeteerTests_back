@@ -9,7 +9,7 @@ const criarCategoria = async (req,page,i,c) =>{
     
         
             const fileData = await request({
-                uri: 'http://localhost:8080/IMAGENS_TESTE/bird.jfif',
+                uri: `${process.env.URL_SYSTEM}/IMAGENS_TESTE/bird.jfif`,
                 encoding: null
             }); 
             

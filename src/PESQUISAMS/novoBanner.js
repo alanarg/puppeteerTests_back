@@ -9,7 +9,7 @@ const criarBanner = async (req,page,i,c) =>{
     
         
             const fileData = await request({
-                uri: 'http://localhost:8080/IMAGENS_TESTE/imagem_teste1.png',
+                uri: `${process.env.URL_SYSTEM}/IMAGENS_TESTE/imagem_teste1.png`,
                 encoding: null
             }); 
             
