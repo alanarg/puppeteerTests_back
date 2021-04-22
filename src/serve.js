@@ -294,11 +294,11 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
         console.log(casosFinais);
 
-            return await res.json({result:'success', data:casosFinais});
+         await res.json({result:'success', data:casosFinais});
 
         } catch (error) {
-
-            return res.json({result:error, data:casosFinais});
+            console.log(error);
+            res.json({result:error, data:casosFinais});
       
 
         }
