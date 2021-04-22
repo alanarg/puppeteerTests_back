@@ -298,7 +298,7 @@ app.post('/pesquisams_admin_login', async (req,res)=>{
 
         } catch (error) {
             console.log(error);
-            res.json({result:error, data:casosFinais});
+            await res.json({result:error, data:casosFinais});
       
 
         }
