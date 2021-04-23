@@ -42,6 +42,7 @@ const app = express();
 app.use((req,res,next)=>{
     res.header("Access-Control-Allow-Origin","*");
     res.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE");
+    res.header('Access-Control-Allow-Headers: Content-Type, Accept, Authorization, X-Requested-With, Application');
     app.use(cors());
     next();
 
@@ -187,7 +188,7 @@ app.post('/pesquisams_admin_login', async (req,res,next)=>{
 
    
         
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(2000);
 
 
         //vai para area pesquisa
@@ -210,9 +211,6 @@ app.post('/pesquisams_admin_login', async (req,res,next)=>{
 
     //Cadastrar nova pesquisa 
     
-
-
-
         while  (y<req.body.cadastrarPesquisa.length) {
             await page.goto(`http://${ambiente}/admin/pesquisa/cadastrar`);
 
@@ -298,11 +296,12 @@ app.post('/pesquisams_admin_login', async (req,res,next)=>{
         }
     
 
-        console.log(casosFinais);
+            console.log(casosFinais);
 
             res.json({result:'success', data:casosFinais});
 
         } catch (error) {
+
             res.json({result:error, data:casosFinais});
       
 
