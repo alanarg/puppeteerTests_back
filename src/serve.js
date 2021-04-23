@@ -42,7 +42,7 @@ const app = express();
 // });
 
 
-var whitelist = ['https://g08.netlify.app','http://localhost:3000','http://localhost:8000','https://puppeteer-back.herokuapp.com']
+var whitelist = ['https://g08.netlify.app','https://puppeteer-back.herokuapp.com/pesquisams_admin_login','http://localhost:3000','http://localhost:8000','https://puppeteer-back.herokuapp.com']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
