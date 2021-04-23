@@ -42,7 +42,7 @@ const app = express();
 // });
 
 
-var whitelist = ['https://g08.netlify.app']
+var whitelist = ['https://g08.netlify.app','http://localhost:3000']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -52,6 +52,8 @@ var corsOptions = {
     }
   }
 }
+
+app.use(cors(corsOptions));
 app.use(express.static(__dirname + '/public'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -126,7 +128,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 });
 
-app.post('/pesquisams_admin_login',cors(corsOptions), async (req,res,next)=>{
+app.post('/pesquisams_admin_login',async (req,res,next)=>{
     let i = 0;
     let k = 0;
     let y = 0;
