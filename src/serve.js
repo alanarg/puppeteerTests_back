@@ -20,12 +20,6 @@ const Regra = require('./models/regra');
 
 const mongoose = require( 'mongoose' ); 
 
-mongoose.connect(
-    "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
-    // "mongodb://localhost/noderest",
-    { useUnifiedTopology:true, useNewUrlParser:true },
-    () => console.log(" Mongoose is connected")
-);
 
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -39,19 +33,45 @@ if(process.env.NODE_ENV !== 'production'){
 
 const app = express();
 
+// app.use((req,res,next)=>{
+//     res.header("Access-Control-Allow-Origin","*");
+//     res.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE");
+//     app.use(cors());
+//     next();
+
+// });
 
 
+var whitelist = ['https://g08.netlify.app']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
 app.use(express.static(__dirname + '/public'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+
+mongoose.connect(
+    "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
+    // "mongodb://localhost/noderest",
+    { useUnifiedTopology:true, useNewUrlParser:true },
+    () => console.log(" Mongoose is connected")
+);
+
 
 app.get('/',(req,res)=>{
     res.send('Hello world');
 
 });
 
-app.post('/gedcorp_publico', cors(), async (req,res,next)=>{
+app.post('/gedcorp_publico', async (req,res,next)=>{
     let i =0;
     let ambiente = req.body.ambiente;
 
@@ -106,7 +126,7 @@ app.post('/gedcorp_publico', cors(), async (req,res,next)=>{
 
 });
 
-app.post('/pesquisams_admin_login',cors(), async (req,res,next)=>{
+app.post('/pesquisams_admin_login',cors(corsOptions), async (req,res,next)=>{
     let i = 0;
     let k = 0;
     let y = 0;
@@ -294,7 +314,7 @@ app.post('/pesquisams_admin_login',cors(), async (req,res,next)=>{
             res.json({result:'success', data:casosFinais});
 
         } catch (error) {
-
+            
             res.json({result:error, data:casosFinais});
       
 
