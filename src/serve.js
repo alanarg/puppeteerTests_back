@@ -39,14 +39,7 @@ if(process.env.NODE_ENV !== 'production'){
 
 const app = express();
 
-app.use((req,res,next)=>{
-    res.header("Access-Control-Allow-Origin","*");
-    res.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE");
-    res.header('Access-Control-Allow-Headers: Content-Type, Accept, Authorization, X-Requested-With, Application');
-    app.use(cors());
-    next();
 
-});
 
 app.use(express.static(__dirname + '/public'));
 
@@ -58,7 +51,7 @@ app.get('/',(req,res)=>{
 
 });
 
-app.post('/gedcorp_publico', async (req,res,next)=>{
+app.post('/gedcorp_publico', cors(), async (req,res,next)=>{
     let i =0;
     let ambiente = req.body.ambiente;
 
@@ -113,7 +106,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 });
 
-app.post('/pesquisams_admin_login', async (req,res,next)=>{
+app.post('/pesquisams_admin_login',cors(), async (req,res,next)=>{
     let i = 0;
     let k = 0;
     let y = 0;
