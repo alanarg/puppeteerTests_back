@@ -74,7 +74,7 @@ app.get('/',(req,res)=>{
 
 });
 
-app.post('/gedcorp_publico', async (req,res,next)=>{
+app.post('/gedcorp_publico',cors(corsOptions), async (req,res,next)=>{
     let i =0;
     let ambiente = req.body.ambiente;
 
@@ -129,7 +129,7 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
 });
 
-app.post('/pesquisams_admin_login',async (req,res,next)=>{
+app.post('/pesquisams_admin_login',cors(corsOptions),async (req,res,next)=>{
     let i = 0;
     let k = 0;
     let y = 0;
@@ -397,7 +397,7 @@ app.post('/vale_universidade', async (req,res)=>{
 
 
 // CRUD de regras do sistema
-app.post("/regra", async (req, res) => {
+app.post("/regra", cors(corsOptions),async (req, res) => {
     try {
         const regras = await Regra.create(req.body);
         return res.json(regras);
@@ -409,7 +409,7 @@ app.post("/regra", async (req, res) => {
     }
 });
 
-app.get("/regra/:sistema/:funcionalidade", async (req, res) => {
+app.get("/regra/:sistema/:funcionalidade",cors(corsOptions), async (req, res) => {
 
      await Regra.find({ 'sistema': req.params.sistema, 'funcionalidade':req.params.funcionalidade}, function (err, docs) {
         if(!err){
@@ -424,14 +424,14 @@ app.get("/regra/:sistema/:funcionalidade", async (req, res) => {
 
 });
 
-app.put("/regra/:id", async (req, res) => {
+app.put("/regra/:id", cors(corsOptions),async (req, res) => {
     const r = await Regra.findByIdAndUpdate(req.params.id, req.body,{new:true});
     return res.json(r);
 
     
 });
 
-app.delete("/regra/:id", async (req, res) => {
+app.delete("/regra/:id",cors(corsOptions), async (req, res) => {
     try {
         await Regra.findByIdAndDelete(req.params.id);
 
