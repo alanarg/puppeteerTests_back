@@ -3,7 +3,7 @@ fs = require('fs');
 
 
 
-const PreCadastroVale = async (req,page,c) =>{
+const PreCadastroVale = async (req,page,i,c) =>{
 
 
     const entradas = req;
@@ -27,17 +27,16 @@ const PreCadastroVale = async (req,page,c) =>{
             //Ouvinte de requisições
             await page.on('response', async r => {
 
-                console.log("oie");
                 // Ignore OPTIONS requests
-                // if(response.request().method() !== 'POST'){
+                if(response.request().method() !== 'POST'){
 
-                // if (response.url().includes('/pesquisams/v1')) {
+                if (response.url().includes('/pesquisams/v1')) {
 
                    
-                //     return  await obj.urls.push(response.url());
+                    return  await obj.urls.push(response.url());
                   
-                // };
-            // }
+                };
+            }
             });
 
             await page.waitForSelector('input.form-control.input-sm.ng-untouched.ng-pristine.ng-invalid');

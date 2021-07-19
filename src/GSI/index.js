@@ -5,8 +5,11 @@ fs = require('fs');
 
 const AutenticacaoGSI = async (req,browser,page,c) =>{
 
+    
 
     const entradas = req;
+
+    console.log(entradas);
     //Instancia o o navegador
        
              
@@ -54,6 +57,9 @@ const AutenticacaoGSI = async (req,browser,page,c) =>{
             let title = await latestPage.title();
 
             console.log(title);
+
+            await latestPage.setViewport({ width: 1366, height: 768});
+
 
                 // console.log(latestTab.title());
 

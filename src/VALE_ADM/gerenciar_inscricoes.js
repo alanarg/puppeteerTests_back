@@ -12,7 +12,7 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
 
 
             //criando resultado
-            let obj = {id:i, tipoDoTeste:"Gerenciar Inscricoes", urlsRequest:[],urlsResponse:[],logs:[], print:''}
+            let obj = {id:i, tipoDoTeste:"Gerenciar Inscricoes", urlsRequest:[],urlsResponse:[],logs:[], print:'', otherImages:[]}
             // casosFinais.push(obj);        
 
             
@@ -63,7 +63,9 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
                     
 
                     await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_ficha_academico_${i}.jpg`, fullPage:true}).then( async t=>{
-                        obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_ficha_academico_${i}.jpg`;
+                        obj.otherImages.push(`${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_ficha_academico_${i}.jpg`);
+
+                        await page.waitForTimeout(2000);
 
                         let url = await page.url();
 
@@ -78,7 +80,8 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
                         await page.waitForTimeout(2000);
  
                         await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_transferencia_${i}.jpg`, fullPage:true}).then( async t=>{
-                            obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_transferencia_${i}.jpg`;
+
+                            obj.otherImages.push( `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_transferencia_${i}.jpg`);
                             
                             await page.waitForTimeout(2000);
 
@@ -87,7 +90,7 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
                             await page.waitForTimeout(2000);
 
                             await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_estagio_${i}.jpg`, fullPage:true}).then( async t=>{
-                                 obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_estagio_${i}.jpg`;
+                                obj.otherImages.push(`${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_estagio_${i}.jpg`);
 
                                  await page.waitForTimeout(2000);
 
@@ -96,7 +99,7 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
                                  await page.waitForTimeout(2000);
 
                                  await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_hVinculos_${i}.jpg`, fullPage:true}).then( async t=>{
-                                    obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_hVinculos_${i}.jpg`;
+                                    obj.otherImages.push(`${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_hVinculos_${i}.jpg`);
                                     
                                     await page.waitForTimeout(2000);
 
@@ -105,7 +108,7 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
                                     await page.waitForTimeout(2000);
 
                                     await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_hTransferencias_${i}.jpg`, fullPage:true}).then( async t=>{
-                                        obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_hTransferencias_${i}.jpg`;
+                                        obj.otherImages.push(`${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_hTransferencias_${i}.jpg`);
 
                                         await page.waitForTimeout(2000);
 
@@ -114,7 +117,13 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
                                         await page.waitForTimeout(2000);
 
                                         await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_hDesligamento_${i}.jpg`, fullPage:true}).then( async t=>{
-                                            obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_hDesligamento_${i}.jpg`;});
+                                            obj.otherImages.push(`${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/gerenciar_hDesligamento_${i}.jpg`);
+                                            
+                                            
+                                             await page.waitForTimeout(2000);
+
+                                            await page.goto(`http://hom.valeuniversidade.ms.gov.br/admin/gerenciar-inscricao`);
+                                        });
 
                                     });
 
@@ -132,9 +141,9 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
              });
 
             
-            page.off('request');
-            page.off('response');
-            page.off('console');
+            await page.off('request');
+            await page.off('response');
+            await page.off('console');
 
             
     return c.push(obj);

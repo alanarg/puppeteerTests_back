@@ -68,14 +68,15 @@ const DadosFamilia = async (req,page,i,c) =>{
             await page.keyboard.type(entradas.dataNascimento, {delay:1000});
 
             
-            await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/dados_familia_${i}.jpg`, fullPage:true}).then(t=>{
+            await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/dados_familia_${i}.jpg`, fullPage:true}).then(async t=>{
                 obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/dados_familia_${i}.jpg`;
+
+                await page.evaluate(()=>{ return document.querySelector('button.btn.green.default').click()});
+
             });
 
-            await page.waitForTimeout(2000);
 
 
-            await page.evaluate(()=>{ return document.querySelector('button.btn.green.default').click()});
             
 
             await page.off('request');

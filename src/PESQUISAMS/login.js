@@ -19,7 +19,7 @@ const loginPesquisaAdm = async (req,page, ambiente) =>{
 
             
             //função de navegação por URL            
-            await page.goto(`http://${ambiente}/portal/login`);
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/portal/login`);
 
 
             
@@ -50,7 +50,7 @@ const loginPesquisaAdm = async (req,page, ambiente) =>{
 
             await page.waitForTimeout(5000);
 
-            await page.type('input[id=usuario]',entradas.nome, );
+            await page.type('input[id=usuario]',entradas.user, );
             await page.type('select[id=dominio]',entradas.dominio, );
             await page.type('input[id=senha]',entradas.senha, );
             await page.evaluate(()=>{ return document.querySelector('button').click();});
