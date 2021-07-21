@@ -1,6 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const PesquisaPublica = require('./GEDCORP/gedcorp');
+
 const loginPesquisaAdm = require('./PESQUISAMS/login');
 const PesquisarAdm = require('./PESQUISAMS/pesquisar');
 const Categoria = require('./PESQUISAMS/categorias');
@@ -16,10 +17,32 @@ const loginCadmim = require('./CADMIMS/login');
 const dadosCadastraisCadmims = require('./CADMIMS/dadosCadastrais');
 const dadosMigracao = require('./CADMIMS/dadosMigracao');
 
+const AutenticacaoGSI = require('./GSI/index');
+
+const PreCadastroVale = require('./VALE_ACADEMICO/vale_precadastro');
+const LoginVale = require('./VALE_ACADEMICO/vale_login');
+const DadosAcademico = require('./VALE_ACADEMICO/vale_dados_academicos');
+const DadosFamilia = require('./VALE_ACADEMICO/vale_dados_familia');
+const EnsinoSuperior = require('./VALE_ACADEMICO/vale_ensino_superior');
+const DadosSociais = require('./VALE_ACADEMICO/vale_dados_sociais');
+const RealizarInscricao = require('./VALE_ACADEMICO/vale_inscricao');
+
+const NovoProcesso = require('./VALE_ADM/novo_processo_cronograma');
+const ProcessoDocumentos = require('./VALE_ADM/novo_processo_documentos');
+const ProcessoCursos = require('./VALE_ADM/novo_processo_cursos');
+const ProcessoCursosRelacionados = require('./VALE_ADM/novo_processo_cursos_relacionados');
+const GerenciarInscricoes = require('./VALE_ADM/gerenciar_inscricoes');
+const ProcessoHistorico = require('./VALE_ADM/novo_processo_historico');
+const Entrevista = require('./VALE_ADM/entrevista');
+const OfertaVagas = require('./VALE_ADM/oferta_de_vagas');
+const NovoOrgaoEstagio = require('./VALE_ADM/novo_orgao_de_estagio');
+const PesquisaOrgaoEstagio = require('./VALE_ADM/pesquisa_orgao_estagio');
+const PesquisaOrgao = require('./VALE_ADM/pesquisa_orgao');
+const RecursoHumano = require('./VALE_ADM/recurso_humano');
+
 const Regra = require('./models/regra');
 
 const mongoose = require( 'mongoose' ); 
-
 
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -60,7 +83,6 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
 mongoose.connect(
     "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
     // "mongodb://localhost/noderest",
@@ -80,7 +102,6 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
     try {
             
-        
         const browser = await puppeteer.launch({
         // usar local caso queira visualizar teste
         // headless:!req.body.visualizarTeste,
@@ -140,178 +161,148 @@ app.post('/pesquisams_admin_login',async (req,res,next)=>{
     let l = 0;
     let q = 0;
 
-    let ambiente = req.body.ambiente;
+    let ambiente = req.body.entradas.ambiente;
 
 
-    
-    const browser = await puppeteer.launch(
-    {
-        // headless:!req.body.visualizarTeste,
-        headless: true,
-            defaultViewport: null,
-            args: [
-                "--incognito",
-                "--no-sandbox",
-                "--single-process",
-                "--no-zygote"
-            ]
-    });
-    
+    //para o heroku
+    // const browser = await puppeteer.launch(
+    // {
+    //     
+    //     headless: true,
+    //         defaultViewport: null,
+    //         args: [
+    //             "--incognito",
+    //             "--no-sandbox",
+    //             "--single-process",
+    //             "--no-zygote"
+    //         ]
+    // });
+
+    //localhost
+    const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
     const page = await browser.newPage();
+    await page.setViewport({ width: 1366, height: 768});
 
 
     const casosFinais = [];
 
     try{
 
-    
-    //logar
-   
-
+    //logar  
     await loginPesquisaAdm(req.body.login,page,ambiente);
-   
-    //Categorias
-    
+        //Categorias
         await page.waitForTimeout(3000);
 
-
+        if(req.body.entradas.categoriaPesquisar.chave){
         //vai para area pesquisa
-        while  (k<req.body.categoriaPesquisar.length) {
-        await page.goto(`http://${ambiente}/admin/categoria`);
-
-            
-
-            // function logRequestCategoria(interceptedRequest) {
-            //     return respostas.push('Requests do pesquisar categoria:' + interceptedRequest.url());
-            // }
-
-            // page.on('request', logRequestCategoria);
-
-        
+        while  (k<req.body.entradas.categoriaPesquisar.casos.length) {
+        await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/categoria`);
             //limpa o formulário
             await page.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
 
             //Injeta pesquisa categoria
-            await Categoria(req.body.categoriaPesquisar[k],page,k,casosFinais);
-
+            await Categoria(req.body.entradas.categoriaPesquisar.casos[k],page,k,casosFinais);
 
             // page.off('request', logRequestCategoria);
-
-
             k++;
         }        
+        }
    
-
-   
-        
         await page.waitForTimeout(2000);
 
-
+        if(req.body.entradas.pesquisar.chave){
         //vai para area pesquisa
-
-        while  (i<req.body.pesquisar.length) {
-
-            await page.goto(`http://${ambiente}/admin/pesquisa`);
+        while  (i<req.body.entradas.pesquisar.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/pesquisa`);
 
             //limpa o formulário
             await page.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
 
-
-            await PesquisarAdm(req.body.pesquisar[i],page,i,casosFinais);
+            await PesquisarAdm(req.body.entradas.pesquisar.casos[i],page,i,casosFinais);
 
             i++;
         }
+        }
 
-    
-
-
-    //Cadastrar nova pesquisa 
-    
-        while  (y<req.body.cadastrarPesquisa.length) {
-            await page.goto(`http://${ambiente}/admin/pesquisa/cadastrar`);
+        if(req.body.entradas.cadastrarPesquisa.chave){
+        //Cadastrar nova pesquisa 
+        while  (y<req.body.entradas.cadastrarPesquisa.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/pesquisa/cadastrar`);
 
             //limpa o formulário
-            await criarPesquisa(req.body.cadastrarPesquisa[y],page,y,casosFinais);
+            await criarPesquisa(req.body.entradas.cadastrarPesquisa.casos[y],page,y,casosFinais);
             //  casosFinais.push();
 
             y++;
         }
+        }
+        if(req.body.entradas.cadastrarCategoria.chave){
+        //cadastrar categoria    
+        while  (j<req.body.entradas.cadastrarCategoria.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/categoria/cadastrar`);
 
-    
-
-    
-    
-        //cadastrar categoria
-
-        
-        while  (j<req.body.cadastrarCategoria.length) {
-        await page.goto(`http://${ambiente}/admin/categoria/cadastrar`);
-                
-            console.log(req.body.cadastrarCategoria[j]);
+            console.log(req.body.cadastrarCategoria.casos[j]);
 
             //limpa o formulário
             await criarCategoria(req.body.cadastrarCategoria[j],page,j,casosFinais);
 
             //  casosFinais.push();
-
             j++;
         }
+        }
 
-    
-
-    
-        
+        if(req.body.entradas.cadastrarBanner.chave){
         //cadastrar novo banner
-        while  (z<req.body.cadastrarBanner.length) {
-            await page.goto(`http://${ambiente}/admin/banner/cadastrar`);
+        while  (z<req.body.entradas.cadastrarBanner.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/banner/cadastrar`);
 
-            await criarBanner(req.body.cadastrarBanner[z],page,z,casosFinais);
-
+            await criarBanner(req.body.entradas.cadastrarBanner.casos[z],page,z,casosFinais);
 
             z++;
         }
-
-
-    
-       
+        }
+        if(req.body.entradas.editarPesquisa.chave){
         //Editar Pesquisa 
-        while(w<req.body.editarPesquisa.length) {
+        while(w<req.body.entradas.editarPesquisa.casos.length) {
 
-            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.editarPesquisa[w].id}`);
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/pesquisa/editar/${req.body.entradas.editarPesquisa.casos[w].id}`);
 
-            await editarPesquisa(req.body.editarPesquisa[w],page,w,casosFinais);
+            await editarPesquisa(req.body.entradas.editarPesquisa.casos[w],page,w,casosFinais);
             w++;
 
         }        
-        
+        }
+        if(req.body.entradas.criarSecao.chave){
         //Criar Seção  
-        while  (l<req.body.criarSecao.length) {
-            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarSecao[l].id}/consultar-secao/${req.body.criarSecao[l].id}`);
+        while  (l<req.body.entradas.criarSecao.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/pesquisa/editar/${req.body.entradas.criarSecao.casos[l].id}/consultar-secao/${req.body.entradas.criarSecao.casos[l].id}`);
 
-            await criarSecao(req.body.criarSecao[l],page,l,casosFinais);
-
+            await criarSecao(req.body.entradas.criarSecao.casos[l],page,l,casosFinais);
 
             l++;
         }
-
+        }
         //Criar Pergunta
-        while  (h<req.body.criarPergunta.length) {
-            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarPergunta[h].pergunta.id}/consultar-pergunta/${req.body.criarPergunta[h].pergunta.id}`);
+        if(req.body.entradas.criarPergunta.chave){
+        while  (h<req.body.entradas.criarPergunta.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/pesquisa/editar/${req.body.entradas.criarPergunta.casos[h].pergunta.id}/consultar-pergunta/${req.body.entradas.criarPergunta.casos[h].pergunta.id}`);
 
-            await criarPergunta(req.body.criarPergunta[h],page,h,casosFinais);
-
+            await criarPergunta(req.body.entradas.criarPergunta.casos[h],page,h,casosFinais);
 
             h++;
         }
+        }
+        if(req.body.entradas.criarPerguntaComSecao.chave){
         //Criar Pergunta com seção
-        while  (q<req.body.criarPerguntaComSecao.length) {
-            await page.goto(`http://${ambiente}/admin/pesquisa/editar/${req.body.criarPerguntaComSecao[q].pergunta.id}/consultar-pergunta/${req.body.criarPerguntaComSecao[q].pergunta.id}`);
+        while  (q<req.body.entradas.criarPerguntaComSecao.casos.length) {
+            await page.goto(`http://${ambiente}.adm.pesquisa.ms.gov.br/admin/pesquisa/editar/${req.body.entradas.criarPerguntaComSecao.casos[q].pergunta.id}/consultar-pergunta/${req.body.entradas.criarPerguntaComSecao.casos[q].pergunta.id}`);
 
-            await criarPerguntaComSecao(req.body.criarPerguntaComSecao[q],page,q,casosFinais);
+            await criarPerguntaComSecao(req.body.entradas.criarPerguntaComSecao.casos[q],page,q,casosFinais);
+
             q++;
         }
+        }
     
-
             console.log(casosFinais);
 
             res.json({result:'success', data:casosFinais});
@@ -337,6 +328,7 @@ app.post('/cadmims', async (req,res)=>{
 
     const casosFinais = [];
 
+
     try {
 
         //fazer login
@@ -361,7 +353,7 @@ app.post('/cadmims', async (req,res)=>{
         
         res.status(200);
         res.send('success');
-""
+
     } catch (error) {
 
         res.status(400);
@@ -371,36 +363,319 @@ app.post('/cadmims', async (req,res)=>{
 });
 
 
-app.post('/vale_universidade', async (req,res)=>{
-    const browser = await puppeteer.launch({headless:req.body.visualizarTeste});
+app.post('/vale_academico', async (req,res)=>{
+    const browser = await puppeteer.launch({headless:false});
+    const pages = await browser.pages();
+    const page = pages[0];
+    const casosFinais = [];
+
+    let ambiente = req.body.ambiente;
+    let q = 0;
+    let j = 0;
     
-    const page = await browser.newPage();
+    
 
-    const respostas = [];
+    try{
+        
+        await page.waitForTimeout(2000);
 
-    function logRequest(interceptedRequest) {
-        return respostas.push('A request was made:' + interceptedRequest.url());
+        console.log(req.body)
+
+        if(req.body.precadastro.chave){
+
+        // Criar Pré-cdastro
+        while(q<req.body.precadastro.casos.length) {
+            await page.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/portal/pre-cadastro`);
+
+            await PreCadastroVale(req.body.precadastro.casos[q],page,q,casosFinais);
+
+            q++;
+        }
+
+        }
+        
+        //Logar 
+        await page.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/portal/login`);
+
+        await LoginVale(req.body.login,page,casosFinais);
+
+        await page.waitForTimeout(2000);
+
+        if(req.body.dadosAcademico.chave){
+
+        
+        await page.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/academico/meus-dados/dados-pessoais`);
+        
+        await DadosAcademico(req.body.dadosAcademico.caso, page, casosFinais);
+        
+        }
+
+        if(req.body.dadosFamilia.chave){
+
+        
+        while(j<req.body.dadosFamilia.casos.length){
+            await page.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/academico/meus-dados/familia`);
+
+            await DadosFamilia(req.body.dadosFamilia.casos[j], page, j,casosFinais);
+
+            j++;
+
+        }
+        }
+       
+        if(req.body.ensinoSuperior.chave){
+
+        
+        await page.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/academico/meus-dados/instituicao-ensino`);
+
+        await EnsinoSuperior(req.body.ensinoSuperior.caso, page, casosFinais);
+
+        }
+
+        if(req.body.dadosSociais.chave){
+
+        
+        await page.goto('http://hom.valeuniversidade.ms.gov.br/admin/academico/meus-dados/dados-sociais');
+
+        await DadosSociais(req.body.dadosSociais.caso, page, casosFinais);
+
+        }
+
+        if(req.body.realizarInscricao.chave){
+
+        
+        await page.goto('http://hom.valeuniversidade.ms.gov.br/admin/academico/meus-dados/listar-processo-seletivo/processo-seletivo');
+
+        await RealizarInscricao(page,casosFinais);
+
+        }
+
+        
+
+
+        
+        res.json({result:'success', data:casosFinais});
+
+    }catch(error){
+        return res.json({result:'fail', data:casosFinais});
+
     }
 
-    page.waitForTimeout(3000);
-
-    page.on('request', logRequest);
-
-    await loginPesquisaAdm(req.body.login,page);
     
-      // Sometime later...
-    page.off('request', logRequest);
+});
 
-    console.log(respostas);
+app.post("/vale_adm", async (req,res)=>{
+    // let ambiente = req.body.ambiente;
+    let q = 0;
+    let j = 0;
+    let k = 0;
+    let a = 0;
+    let um = 0;
+    let dois = 0;
+    let tres = 0;
+
+    let ambiente = req.body.entradas.ambiente;
+
+
+
+    const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1366, height: 768});
     
+    const casosFinais = [];
+
+    try {
+
+        await page.goto('https://www.gsi.ms.gov.br');
+
+        let latestPage = await AutenticacaoGSI(req.body.login,browser, page,casosFinais);  
+
+        await latestPage.waitForTimeout(3000);
+
+
+        if(req.body.entradas.novoProcesso.chave){
+             await NovoProcesso(req.body.entradas.novoProcesso, latestPage, casosFinais);
+
+
+
+        await page.waitForTimeout(3000);
+
+        let url = await latestPage.url();
+
+        let paths = await url.split('/');
+
+        console.log(paths);
+
+        await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/processo-seletivo/editar/${paths[6]}/documentos`);
+
+        await ProcessoDocumentos(req.body.entradas.novoProcesso.processoDocumento, latestPage, casosFinais);
+
+        await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/processo-seletivo/editar/${paths[6]}/cursos`);
+
+        await page.waitForTimeout(2000);
+
+        await ProcessoCursos(latestPage, casosFinais);
+
+        await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/processo-seletivo/editar/${paths[6]}/cursos-relacionados`);
+
+        await ProcessoCursosRelacionados(latestPage, casosFinais);
+
+        await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/processo-seletivo/editar/${paths[6]}/historico-processo-seletivo`);
+
+        await ProcessoHistorico(latestPage, casosFinais);
+
+        }
+        if(req.body.entradas.gerenciarInscricoes.chave){
+            while  (q<req.body.entradas.gerenciarInscricoes.casos.length) {
+                await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/gerenciar-inscricao`);
+                //limpa o formulário
+                // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+    
+                //Injeta pesquisa categoria
+                await GerenciarInscricoes(req.body.entradas.gerenciarInscricoes.casos[q],latestPage,q,casosFinais);
+    
+                // page.off('request', logRequestCategoria);
+                q++;
+             }
+
+        }
+       
+        if(req.body.entradas.entrevista.chave){
+
+        
+        while  (j<req.body.entradas.entrevista.casos.length) {
+
+            await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/entrevista`);
+
+            await page.waitForTimeout(2000);
+
+            // await page.click('div.col-md-12 > a');
+
+            //limpa o formulário
+            // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+
+            //Injeta pesquisa categoria
+            await Entrevista(req.body.entradas.entrevista.casos[j],latestPage,j,casosFinais, ambiente);
+
+            // page.off('request', logRequestCategoria);
+            j++;
+        }
+        }
+        if(req.body.entradas.ofertaDeVagas.chave){
+            while  (k<req.body.entradas.ofertaDeVagas.casos.length) {
+
+                await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/oferta-vagas`);
+    
+                await page.waitForTimeout(2000);
+    
+                // await page.click('div.col-md-12 > a');
+    
+                //limpa o formulário
+                // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+    
+                //Injeta pesquisa categoria
+                await OfertaVagas(req.body.entradas.ofertaDeVagas.casos[k],latestPage,k,casosFinais, ambiente);
+    
+                // page.off('request', logRequestCategoria);
+                k++;
+            }
+
+        }
+
+        if(req.body.entradas.novoOrgaoEstagio.chave){
+            while  (a<req.body.entradas.novoOrgaoEstagio.casos.length) {
+
+                await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/orgao-estagio/cadastrar`);
+                await page.waitForTimeout(2000);
+                // await page.click('div.col-md-12 > a');
+                //limpa o formulário
+                // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+                //Injeta pesquisa categoria
+                await NovoOrgaoEstagio(req.body.entradas.novoOrgaoEstagio.casos[a],latestPage,a,casosFinais, ambiente);
+    
+                // page.off('request', logRequestCategoria);
+                a++;
+            }
+        }
+
+        if(req.body.entradas.pesquisaOrgao.chave){
+            while  (um<req.body.entradas.pesquisaOrgao.casos.length) {
+
+                await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/orgao-estagio`);
+                await page.waitForTimeout(2000);
+                // await page.click('div.col-md-12 > a');
+                //limpa o formulário
+                // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+                //Injeta pesquisa categoria
+                await PesquisaOrgao(req.body.entradas.pesquisaOrgao.casos[um],latestPage,um,casosFinais, ambiente);
+    
+                // page.off('request', logRequestCategoria);
+                um++;
+            }
+        }
+
+        if(req.body.entradas.pesquisaOrgaoEstagio.chave){
+            while  (dois<req.body.entradas.pesquisaOrgaoEstagio.casos.length) {
+
+                await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/orgao-estagio`);
+                await page.waitForTimeout(2000);
+                // await page.click('div.col-md-12 > a');
+                //limpa o formulário
+                // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+                //Injeta pesquisa categoria
+                await PesquisaOrgaoEstagio(req.body.entradas.pesquisaOrgaoEstagio.casos[dois],latestPage,dois,casosFinais, ambiente);
+    
+                // page.off('request', logRequestCategoria);
+                dois++;
+            }
+        }
+        if(req.body.entradas.recursoHumano.chave){
+            while  (tres<req.body.recursoHumano.casos.length) {
+
+                await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/recurso-humano`);
+                await page.waitForTimeout(2000);
+                // await page.click('div.col-md-12 > a');
+                //limpa o formulário
+                // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+                //Injeta pesquisa categoria
+                await RecursoHumano(req.body.entradas.recursoHumano.casos[tres],latestPage,tres,casosFinais, ambiente);
+    
+                // page.off('request', logRequestCategoria);
+                tres++;
+            }
+        }
+     
+        console.log(casosFinais);
+
+        res.json({result:'success', data:casosFinais});
+
+    } catch (error) {
+        console.log(error);
+
+        return res.json({result:'fail', data:casosFinais});
+
+    }
+
 });
 
 
 // CRUD de regras do sistema
 app.post("/regra", async (req, res) => {
     try {
-        const regras = await Regra.create(req.body);
-        return res.json(regras);
+
+        const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1366, height: 768});
+
+        await page.goto
+
+        // use manually trigger change event
+    await page.evaluate((optionElem, selectElem) => {
+        optionElem.selected = true;
+        const event = new Event('change', {bubbles: true});
+        selectElem.dispatchEvent(event);
+    }, optionElem, selectElem);
+        return res.json({ result: "error", message: err });
 
     } catch (err) {
     
@@ -410,25 +685,34 @@ app.post("/regra", async (req, res) => {
 });
 
 app.get("/regra/:sistema/:funcionalidade", async (req, res) => {
-
-     await Regra.find({ 'sistema': req.params.sistema, 'funcionalidade':req.params.funcionalidade}, function (err, docs) {
-        if(!err){
+    try {
+        await Regra.find({ 'sistema': req.params.sistema, 'funcionalidade':req.params.funcionalidade}, function (err, docs) {
+            if(!err){
+            
+                return res.json(docs);
+    
+            }else{
+    
+                return console.log(err);
+            }
+        });       
+        res.send("ok");
+    } catch (error) {
+        console.log(error);
+        res.json({"error":error})
         
-            return res.json(docs);
-
-        }else{
-
-            return console.log(err);
-        }
-    });
-
+        
+    }
+     
 });
 
 app.put("/regra/:id", async (req, res) => {
-    const r = await Regra.findByIdAndUpdate(req.params.id, req.body,{new:true});
-    return res.json(r);
-
-    
+    try{
+        const r = await Regra.findByIdAndUpdate(req.params.id, req.body,{new:true});
+        return res.json(r);
+    }catch(error){
+        return res.json(error);
+    }
 });
 
 app.delete("/regra/:id", async (req, res) => {

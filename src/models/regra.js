@@ -23,6 +23,6 @@ const RegraSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-})
+},{collection: "Regra"})
 
 module.exports = mongoose.model('Regra', RegraSchema)
