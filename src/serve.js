@@ -83,7 +83,6 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
 mongoose.connect(
     "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
     // "mongodb://localhost/noderest",
@@ -686,25 +685,34 @@ app.post("/regra", async (req, res) => {
 });
 
 app.get("/regra/:sistema/:funcionalidade", async (req, res) => {
-
-     await Regra.find({ 'sistema': req.params.sistema, 'funcionalidade':req.params.funcionalidade}, function (err, docs) {
-        if(!err){
-        
-            return res.json(docs);
-
-        }else{
-
-            return console.log(err);
-        }
-    });
-
-});
-''
-app.put("/regra/:id", async (req, res) => {
-    const r = await Regra.findByIdAndUpdate(req.params.id, req.body,{new:true});
-    return res.json(r);
-
+    try {
+        await Regra.find({ 'sistema': req.params.sistema, 'funcionalidade':req.params.funcionalidade}, function (err, docs) {
+            if(!err){
+            
+                return res.json(docs);
     
+            }else{
+    
+                return console.log(err);
+            }
+        });       
+        res.send("ok");
+    } catch (error) {
+        console.log(error);
+        res.json({"error":error})
+        
+        
+    }
+     
+});
+
+app.put("/regra/:id", async (req, res) => {
+    try{
+        const r = await Regra.findByIdAndUpdate(req.params.id, req.body,{new:true});
+        return res.json(r);
+    }catch(error){
+        return res.json(error);
+    }
 });
 
 app.delete("/regra/:id", async (req, res) => {
