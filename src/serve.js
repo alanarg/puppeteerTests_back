@@ -713,7 +713,9 @@ app.post("/vale_adm", async (req,res)=>{
 app.post("/regra", async (req, res) => {
     try {
 
-        const regra = Regra();
+        const regra = new Regra({sistema:req.body.sistema, titulo:req.body.titulo,funcionalidade:req.body.funcionalidade, descricao:req.body.descricao});
+        regra.save();
+        
     } catch (error) {
     
         console.log(err);
