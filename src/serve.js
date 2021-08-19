@@ -43,10 +43,13 @@ const RecursoHumano = require('./VALE_ADM/recurso_humano');
 const Regra = require('./models/regra');
 
 const mongoose = require( 'mongoose' ); 
-
+var captcha = '';
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const cors = require('cors');
+
+
+
 const { Console } = require('console');
 
 if(process.env.NODE_ENV !== 'production'){ 
@@ -84,7 +87,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 mongoose.connect(
-    "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
+    "mongodb+srv://alanarg:alanzin@cluster0.wrfhn.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
     // "mongodb://localhost/noderest",
     { useUnifiedTopology:true, useNewUrlParser:true },
     () => console.log(" Mongoose is connected")
@@ -449,11 +452,7 @@ app.post('/vale_academico', async (req,res)=>{
         await RealizarInscricao(page,casosFinais);
 
         }
-
-        
-
-
-        
+    
         res.json({result:'success', data:casosFinais});
 
     }catch(error){
@@ -462,6 +461,22 @@ app.post('/vale_academico', async (req,res)=>{
     }
 
     
+});
+function UpdateCapt(c){
+    captcha =c;
+    return captcha;
+}
+app.post("/captcha",(req,res)=>{
+
+    try {
+        UpdateCapt(req.body.captcha);
+        fs.unlinkSync(`./src/public/captcha.jpg`);
+        res.json({'resposta':'ok!'});
+
+    } catch (error) {
+        res.status(400);
+        console.log(error)            
+    }
 });
 
 app.post("/vale_adm", async (req,res)=>{
@@ -477,7 +492,7 @@ app.post("/vale_adm", async (req,res)=>{
     let ambiente = req.body.entradas.ambiente;
 
 
-
+    console.log(captcha);
     const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
     const page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 768});
@@ -488,7 +503,11 @@ app.post("/vale_adm", async (req,res)=>{
 
         await page.goto('https://www.gsi.ms.gov.br');
 
-        let latestPage = await AutenticacaoGSI(req.body.login,browser, page,casosFinais);  
+        await page.screenshot({path:`./src/public/captcha.jpg`, fullPage:true});
+      
+        await page.waitForTimeout(8000);
+
+        let latestPage = await AutenticacaoGSI(req.body.login,browser, page,casosFinais,captcha);  
 
         await latestPage.waitForTimeout(3000);
 
