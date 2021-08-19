@@ -712,9 +712,12 @@ app.post("/vale_adm", async (req,res)=>{
 // CRUD de regras do sistema
 app.post("/regra", async (req, res) => {
     try {
+        console.log(req.body.regra)
 
-        const regra = new Regra({sistema:req.body.sistema, titulo:req.body.titulo,funcionalidade:req.body.funcionalidade, descricao:req.body.descricao});
-        regra.save();
+             const regras = await Regra.create(req.body.regra);
+            return res.json(regras);
+    
+       
         
     } catch (error) {
     
@@ -735,7 +738,7 @@ app.get("/regra/:sistema/:funcionalidade", async (req, res) => {
                 return console.log(err);
             }
         });       
-        res.send("ok");
+        
     } catch (error) {
         console.log(error);
         res.json({"error":error})
