@@ -106,19 +106,16 @@ app.post('/gedcorp_publico', async (req,res,next)=>{
 
     try {
             
+        //Configuração do lauch() para rodar sem problemas no heroku
         const browser = await puppeteer.launch({
-        // usar local caso queira visualizar teste
-        // headless:!req.body.visualizarTeste,
-
-            //Configuração do lauch() para rodar sem problemas no heroku
-            headless: true,
+          headless: true,
             defaultViewport: null,
             args: [
-                "--incognito",
-                "--no-sandbox",
-                "--single-process",
-                "--no-zygote"
-            ]
+             "--incognito",
+             "--no-sandbox",
+             "--single-process",
+             "--no-zygote"
+        ]
         });
     
         const page = await browser.newPage();
@@ -167,25 +164,22 @@ app.post('/pesquisams_admin_login',async (req,res,next)=>{
 
     let ambiente = req.body.entradas.ambiente;
 
-
-    //para o heroku
-    // const browser = await puppeteer.launch(
-    // {
-    //     
-    //     headless: true,
-    //         defaultViewport: null,
-    //         args: [
-    //             "--incognito",
-    //             "--no-sandbox",
-    //             "--single-process",
-    //             "--no-zygote"
-    //         ]
-    // });
+   //Configuração do lauch() para rodar sem problemas no heroku
+   const browser = await puppeteer.launch({
+    headless: true,
+    defaultViewport: null,
+    args: [
+        "--incognito",
+        "--no-sandbox",
+        "--single-process",
+        "--no-zygote"
+    ]
+    });
 
     //localhost
-    const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+    // const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
     const page = await browser.newPage();
-    await page.setViewport({ width: 1366, height: 768});
+    // await page.setViewport({ width: 1366, height: 768});
 
 
     const casosFinais = [];
@@ -325,8 +319,19 @@ app.post('/cadmims', async (req,res)=>{
     let q = 0;
 
     let ambiente = req.body.ambiente;
+    //Configuração do lauch() para rodar sem problemas no heroku
+    const browser = await puppeteer.launch({
+        headless: true,
+        defaultViewport: null,
+        args: [
+            "--incognito",
+            "--no-sandbox",
+            "--single-process",
+            "--no-zygote"
+        ]
+    });
 
-    const browser = await puppeteer.launch({headless:false});
+    // const browser = await puppeteer.launch({headless:false});
     
     const page = await browser.newPage();
 
@@ -368,7 +373,20 @@ app.post('/cadmims', async (req,res)=>{
 
 
 app.post('/vale_academico', async (req,res)=>{
-    const browser = await puppeteer.launch({headless:false});
+ 
+    //Configuração do lauch() para rodar sem problemas no heroku
+    const browser = await puppeteer.launch({
+        headless: true,
+        defaultViewport: null,
+        args: [
+            "--incognito",
+            "--no-sandbox",
+            "--single-process",
+            "--no-zygote"
+        ]
+    });
+
+    // const browser = await puppeteer.launch({headless:false});
     const pages = await browser.pages();
     const page = pages[0];
     const casosFinais = [];
@@ -494,9 +512,21 @@ app.post("/vale_adm", async (req,res)=>{
 
 
     console.log(captcha);
-    const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+    
+    //Configuração do lauch() para rodar sem problemas no heroku
+    const browser = await puppeteer.launch({
+            headless: true,
+            defaultViewport: null,
+            args: [
+                "--incognito",
+                "--no-sandbox",
+                "--single-process",
+                "--no-zygote"
+            ]
+        });
+    // const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
     const page = await browser.newPage();
-    await page.setViewport({ width: 1366, height: 768});
+    // await page.setViewport({ width: 1366, height: 768});
     
     const casosFinais = [];
 
@@ -683,24 +713,11 @@ app.post("/vale_adm", async (req,res)=>{
 app.post("/regra", async (req, res) => {
     try {
 
-        const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
-        const page = await browser.newPage();
-        await page.setViewport({ width: 1366, height: 768});
-
-        await page.goto
-
-        // use manually trigger change event
-    await page.evaluate((optionElem, selectElem) => {
-        optionElem.selected = true;
-        const event = new Event('change', {bubbles: true});
-        selectElem.dispatchEvent(event);
-    }, optionElem, selectElem);
-        return res.json({ result: "error", message: err });
-
-    } catch (err) {
+        const regra = Regra();
+    } catch (error) {
     
         console.log(err);
-      return res.json({ result: "error", message: err });
+         return res.json({ result: "error", message: err });
     }
 });
 
