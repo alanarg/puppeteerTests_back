@@ -86,6 +86,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+ 
 mongoose.connect(
     "mongodb+srv://alanarg:alanzin@cluster0.wrfhn.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
     // "mongodb://localhost/noderest",
