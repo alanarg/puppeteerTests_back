@@ -60,9 +60,10 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
+ 
 mongoose.connect(
-    "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
+    "mongodb+srv://alanarg:alanzin@cluster0.wrfhn.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
+    // "mongodb+srv://alan:alanzin@cluster0.yhkfg.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
     // "mongodb://localhost/noderest",
     { useUnifiedTopology:true, useNewUrlParser:true },
     () => console.log(" Mongoose is connected")
