@@ -42,6 +42,7 @@ const RecursoHumano = require('./VALE_ADM/recurso_humano');
 
 const Regra = require('./models/regra');
 
+
 const mongoose = require( 'mongoose' ); 
 var captcha = '';
 const bodyParser = require("body-parser");
@@ -51,6 +52,7 @@ const cors = require('cors');
 
 
 const { Console } = require('console');
+const { env } = require('process');
 
 if(process.env.NODE_ENV !== 'production'){ 
     require('dotenv').config()
@@ -103,21 +105,33 @@ app.get('/',(req,res)=>{
 app.post('/gedcorp_publico', async (req,res,next)=>{
     let i =0;
     let ambiente = req.body.ambiente;
+    let conf = {};
 
     try {
             
-        //Configuração do lauch() para rodar sem problemas no heroku
-        const browser = await puppeteer.launch({
-          headless: true,
-            defaultViewport: null,
-            args: [
-             "--incognito",
-             "--no-sandbox",
-             "--single-process",
-             "--no-zygote"
-        ]
-        });
-    
+         //Configuração do lauch() para rodar sem problemas no heroku
+    if(process.env.URL_SYSTEM === 'http://localhost:8080'){
+
+        conf = {headless:false,args: ['--start-maximized']};
+ 
+     }else{
+          conf = {
+             headless: true,
+             defaultViewport: null,
+             args: [
+                 "--incognito",
+                 "--no-sandbox",
+                 "--single-process",
+                 "--no-zygote"
+             ]
+         };
+ 
+  
+     }
+
+
+        const browser = puppeteer.launch(conf);
+
         const page = await browser.newPage();
 
 
@@ -161,23 +175,31 @@ app.post('/pesquisams_admin_login',async (req,res,next)=>{
     let h = 0;
     let l = 0;
     let q = 0;
+    let conf = {};
 
     let ambiente = req.body.entradas.ambiente;
+  //Configuração do lauch() para rodar sem problemas no heroku
+  if(process.env.URL_SYSTEM === 'http://localhost:8080'){
 
-   //Configuração do lauch() para rodar sem problemas no heroku
-   const browser = await puppeteer.launch({
-    headless: true,
-    defaultViewport: null,
-    args: [
-        "--incognito",
-        "--no-sandbox",
-        "--single-process",
-        "--no-zygote"
-    ]
-    });
+    conf = {headless:false,args: ['--start-maximized']};
 
-    //localhost
-    // const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+ }else{
+      conf = {
+         headless: true,
+         defaultViewport: null,
+         args: [
+             "--incognito",
+             "--no-sandbox",
+             "--single-process",
+             "--no-zygote"
+         ]
+     };
+
+
+ }
+
+
+    const browser = await puppeteer.launch(conf);
     const page = await browser.newPage();
     // await page.setViewport({ width: 1366, height: 768});
 
@@ -315,23 +337,31 @@ app.post('/pesquisams_admin_login',async (req,res,next)=>{
 
 //CADMIM
 app.post('/cadmims', async (req,res)=>{
-
+    let conf = {};
     let q = 0;
 
     let ambiente = req.body.ambiente;
     //Configuração do lauch() para rodar sem problemas no heroku
-    const browser = await puppeteer.launch({
-        headless: true,
-        defaultViewport: null,
-        args: [
-            "--incognito",
-            "--no-sandbox",
-            "--single-process",
-            "--no-zygote"
-        ]
-    });
+    if(process.env.URL_SYSTEM === 'http://localhost:8080'){
 
-    // const browser = await puppeteer.launch({headless:false});
+       conf = {headless:false,args: ['--start-maximized']};
+
+    }else{
+         conf = {
+            headless: true,
+            defaultViewport: null,
+            args: [
+                "--incognito",
+                "--no-sandbox",
+                "--single-process",
+                "--no-zygote"
+            ]
+        };
+
+ 
+    }
+
+    const browser = await puppeteer.launch(conf);
     
     const page = await browser.newPage();
 
@@ -373,20 +403,28 @@ app.post('/cadmims', async (req,res)=>{
 
 
 app.post('/vale_academico', async (req,res)=>{
- 
-    //Configuração do lauch() para rodar sem problemas no heroku
-    const browser = await puppeteer.launch({
-        headless: true,
-        defaultViewport: null,
-        args: [
-            "--incognito",
-            "--no-sandbox",
-            "--single-process",
-            "--no-zygote"
-        ]
-    });
+    let conf= {};
+     //Configuração do lauch() para rodar sem problemas no heroku
+     if(process.env.URL_SYSTEM === 'http://localhost:8080'){
 
-    // const browser = await puppeteer.launch({headless:false});
+        conf = {headless:false,args: ['--start-maximized']};
+ 
+     }else{
+          conf = {
+             headless: true,
+             defaultViewport: null,
+             args: [
+                 "--incognito",
+                 "--no-sandbox",
+                 "--single-process",
+                 "--no-zygote"
+             ]
+         };
+ 
+  
+     }
+
+    const browser = await puppeteer.launch(conf);
     const pages = await browser.pages();
     const page = pages[0];
     const casosFinais = [];
@@ -507,14 +545,19 @@ app.post("/vale_adm", async (req,res)=>{
     let um = 0;
     let dois = 0;
     let tres = 0;
+    let conf = {};
 
     let ambiente = req.body.entradas.ambiente;
-
 
     console.log(captcha);
     
     //Configuração do lauch() para rodar sem problemas no heroku
-    const browser = await puppeteer.launch({
+    if(process.env.URL_SYSTEM === 'http://localhost:8080'){
+
+       conf = {headless:false,args: ['--start-maximized']};
+
+    }else{
+         conf = {
             headless: true,
             defaultViewport: null,
             args: [
@@ -523,10 +566,15 @@ app.post("/vale_adm", async (req,res)=>{
                 "--single-process",
                 "--no-zygote"
             ]
-        });
-    // const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+        };
+
+ 
+    }
+    const browser = await puppeteer.launch(conf);
+
     const page = await browser.newPage();
-    // await page.setViewport({ width: 1366, height: 768});
+        
+    await page.setViewport({ width: 1366, height: 768});
     
     const casosFinais = [];
 

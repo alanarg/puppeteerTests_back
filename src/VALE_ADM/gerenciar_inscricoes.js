@@ -48,7 +48,7 @@ const GerenciarInscricoes = async (req,page,i,c) =>{
             await page.evaluate(()=>{ return document.querySelector('button.btn.blue').click();});
 
              //Espera o carregamento do GRID
-             await page.waitForTimeout(10000);
+             await page.waitForSelector('a.btn.btn-xs.default');
 
              //Tirando print assim que o botão pesquisar é acionado
              await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/gerenciar_inscricoes_${i}.jpg`, fullPage:true}).then( async t=>{
