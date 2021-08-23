@@ -61,13 +61,13 @@ if(process.env.NODE_ENV !== 'production'){
 
 const app = express();
 
-// app.use((req,res,next)=>{
-//     res.header("Access-Control-Allow-Origin","*");
-//     res.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE");
-//     app.use(cors());
-//     next();
+app.use((req,res,next)=>{
+    res.header("Access-Control-Allow-Origin","*");
+    res.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE");
+    app.use(cors());
+    next();
 
-// });
+});
 
 
 // var whitelist = ['https://g08.netlify.app','https://puppeteer-back.herokuapp.com/pesquisams_admin_login','http://localhost:3000','http://localhost:8000','https://puppeteer-back.herokuapp.com']
@@ -81,7 +81,6 @@ const app = express();
 //   }
 // }
 
-app.use(cors());
 
 app.use(express.static(__dirname + '/public'));
 
