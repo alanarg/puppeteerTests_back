@@ -764,12 +764,11 @@ app.post("/regra", async (req, res) => {
              const regras = await Regra.create(req.body.regra);
             return res.json(regras);
     
-       
         
     } catch (error) {
     
-        console.log(err);
-         return res.json({ result: "error", message: err });
+        console.log(error);
+         return res.json({ result: "error", message: error });
     }
 });
 
