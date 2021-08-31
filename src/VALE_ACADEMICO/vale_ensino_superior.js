@@ -78,8 +78,11 @@ const EnsinoSuperior = async (req,page,c) =>{
                 obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/ensino_superior.jpg`;
             });
 
-            await page.evaluate(()=>{ return document.querySelector('div > button[type=\"submit\"]').click()});
+            await page.waitForTimeout(3000);
 
+            await page.evaluate(()=>{ return document.querySelector('button.btn.btn-md.green.default').click()});
+
+            await page.waitForTimeout(3000);
 
             // let button = await page.$('');
             // await button.click();

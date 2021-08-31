@@ -40,8 +40,14 @@ const PesquisaOrgaoEstagio = require('./VALE_ADM/pesquisa_orgao_estagio');
 const PesquisaOrgao = require('./VALE_ADM/pesquisa_orgao');
 const RecursoHumano = require('./VALE_ADM/recurso_humano');
 
-const Regra = require('./models/regra');
+const RepasseFinanceiro = require('./REDESUAS/repasse-financeiro');
+const AceiteConfinanciamento = require('./REDESUAS/aceite-confinanciamento');
+const PlanoAcao = require('./REDESUAS/plano-acao');
+const Demonstrativo = require('./REDESUAS/demonstrativo-fisico-financeiro');
 
+
+const Regra = require('./models/regra');
+const ObjetoAnterior = require('./models/objetoAnterior');
 
 const mongoose = require( 'mongoose' ); 
 var captcha = '';
@@ -89,7 +95,9 @@ app.use(bodyParser.json());
 
  
 mongoose.connect(
-    "mongodb+srv://alanarg:alanzin@cluster0.wrfhn.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
+    "mongodb://localhost:27017",
+
+    // "mongodb+srv://alanarg:alanzin@cluster0.wrfhn.mongodb.net/PlataformaDeTestes?retryWrites=true&w=majority",
     // "mongodb://localhost/noderest",
     { useUnifiedTopology:true, useNewUrlParser:true },
     () => console.log(" Mongoose is connected")
@@ -426,6 +434,8 @@ app.post('/vale_academico', async (req,res)=>{
     const browser = await puppeteer.launch(conf);
     const pages = await browser.pages();
     const page = pages[0];
+    await page.setViewport({ width: 1366, height: 768});
+
     const casosFinais = [];
 
     let ambiente = req.body.ambiente;
@@ -548,7 +558,7 @@ app.post("/vale_adm", async (req,res)=>{
 
     let ambiente = req.body.entradas.ambiente;
 
-    console.log(captcha);
+    console.log(req.body.entradas.novoProcesso.chave);
     
     //Configuração do lauch() para rodar sem problemas no heroku
     if(process.env.URL_SYSTEM === 'http://localhost:8080'){
@@ -581,9 +591,9 @@ app.post("/vale_adm", async (req,res)=>{
 
         await page.goto('https://www.gsi.ms.gov.br');
 
-        await page.screenshot({path:`./src/public/captcha.jpg`, fullPage:true});
+        // await page.screenshot({path:`./src/public/captcha.jpg`, fullPage:true});
       
-        await page.waitForTimeout(8000);
+        // await page.waitForTimeout(8000);
 
         let latestPage = await AutenticacaoGSI(req.body.login,browser, page,casosFinais,captcha);  
 
@@ -727,7 +737,7 @@ app.post("/vale_adm", async (req,res)=>{
             }
         }
         if(req.body.entradas.recursoHumano.chave){
-            while  (tres<req.body.recursoHumano.casos.length) {
+            while  (tres<req.body.entradas.recursoHumano.casos.length) {
 
                 await latestPage.goto(`http://${ambiente}.valeuniversidade.ms.gov.br/admin/recurso-humano`);
                 await page.waitForTimeout(2000);
@@ -755,8 +765,147 @@ app.post("/vale_adm", async (req,res)=>{
 
 });
 
+app.post("/redesuas", async (req,res)=>{
+    // let ambiente = req.body.ambiente;
+    let q = 0;
+    let j = 0;
+    let k = 0;
+    let a = 0;
+    let um = 0;
+    let dois = 0;
+    let tres = 0;
+    let conf = {};
+
+    console.log(req.body.entradas);
+
+    let ambiente = req.body.entradas.ambiente;
+    
+    //Configuração do lauch() para rodar sem problemas no heroku
+    if(process.env.URL_SYSTEM === 'http://localhost:8080'){
+
+       conf = {headless:false,args: ['--start-maximized']};
+
+    }else{
+         conf = {
+            headless: true,
+            defaultViewport: null,
+            args: [
+                "--incognito",
+                "--no-sandbox",
+                "--single-process",
+                "--no-zygote"
+            ]
+        };
+
+ 
+    }
+    const browser = await puppeteer.launch(conf);
+
+    const page = await browser.newPage();
+        
+    await page.setViewport({ width: 1366, height: 768});
+    
+    const casosFinais = [];
+
+    try {
+
+        await page.goto('https://www.gsi.ms.gov.br');
+
+        // await page.screenshot({path:`./src/public/captcha.jpg`, fullPage:true});
+      
+        // await page.waitForTimeout(8000);
+
+        let latestPage = await AutenticacaoGSI(req.body.login,browser, page,casosFinais);  
+
+        await latestPage.waitForTimeout(3000);
+   
+
+    if(req.body.entradas.repasse.chave){
+        while  (q<req.body.entradas.repasse.casos.length) {
+            await latestPage.goto(`http://hom.redesuas.ms.gov.br/Cofinanciamento/Consultar`);
+            await page.waitForTimeout(2000);
+            // await page.click('div.col-md-12 > a');
+            //limpa o formulário
+            // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+            //Injeta pesquisa categoria
+            await RepasseFinanceiro(req.body.entradas.repasse.casos[q],latestPage,q,casosFinais, ambiente);
+
+            // page.off('request', logRequestCategoria);
+            q++;
+        }
+    }
+    if(req.body.entradas.aceiteCofinanciamento.chave){
+        while  (q<req.body.entradas.aceiteCofinanciamento.casos.length) {
+            await latestPage.goto(`http://hom.redesuas.ms.gov.br/Cofinanciamento/Consultar`);
+            await page.waitForTimeout(2000);
+            // await page.click('div.col-md-12 > a');
+            //limpa o formulário
+            // await latestPage.evaluate(()=>{ return document.querySelector('a.btn.red').click();});
+            //Injeta pesquisa categoria
+            await RepasseFinanceiro(req.body.entradas.repasse.casos[q],latestPage,q,casosFinais, ambiente);
+
+            // page.off('request', logRequestCategoria);
+            q++;
+        }
+    }
+        console.log(casosFinais);
+
+        res.json({result:'success', data:casosFinais});
+
+    } catch (error) {
+        console.log(error);
+
+        return res.json({result:'fail', data:casosFinais});
+
+    }
+
+});
 
 // CRUD de regras do sistema
+app.post("/objeto_test", async (req, res) => {
+    try {
+            let caso = JSON.stringify(req.body.Objeto);
+            try {
+                 await ObjetoAnterior.findOneAndDelete({ 'Sistema': req.body.sistema});
+
+            } catch (error) {
+                console.log(error);
+            }
+
+            const objetos = await ObjetoAnterior.create({Objeto:caso, Sistema:req.body.sistema});
+
+            return res.json(JSON.parse(objetos.Objeto));
+    
+        
+    } catch (error) {
+    
+        console.log(error);
+
+        return res.json({ result: "error", message: error });
+    }
+});
+
+// CRUD de regras do sistema
+app.get("/objeto_test/:sistema", async (req, res) => {
+
+    try {
+        await ObjetoAnterior.find({ 'Sistema': req.params.sistema}, function (err, docs) {
+            if(!err){
+                console.log(docs);
+                return res.json(docs);
+            }else{
+                return console.log(err);
+            }
+        });       
+        
+    } catch (error) {
+        console.log(error);
+        res.json({"error":error})
+        
+        
+    }
+});
+
 app.post("/regra", async (req, res) => {
     try {
         console.log(req.body.regra)

@@ -5,8 +5,6 @@ fs = require('fs');
 
 const AutenticacaoGSI = async (req,browser,page,c,captcha) =>{
 
-    
-
     const entradas = req;
 
     console.log(entradas);
@@ -29,15 +27,15 @@ const AutenticacaoGSI = async (req,browser,page,c,captcha) =>{
 
             await page.keyboard.type(entradas.senha);
 
-            await page.waitForTimeout(3000);
+            // await page.waitForTimeout(8000);
 
-            await page.keyboard.press('Tab');
+            // await page.keyboard.press('Tab');
 
-            await page.keyboard.press('Tab');
+            // await page.keyboard.press('Tab');
 
-            await page.keyboard.type(String(captcha));
+            // await page.keyboard.type(String(captcha));
 
-            await page.keyboard.press('Enter');
+            // await page.keyboard.press('Enter');
  
             // await page.type('select[id=ddlDominio]', "F");
  
@@ -47,7 +45,6 @@ const AutenticacaoGSI = async (req,browser,page,c,captcha) =>{
 
             await page.select('select#ctl00_ContentPlaceHolder1_ddlSistemasAutorizados',entradas.sistema);
 
-    
 
             await page.waitForTimeout(2000);
 

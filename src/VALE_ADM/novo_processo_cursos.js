@@ -44,11 +44,7 @@ const Cursos = async (page,c) =>{
 
                 
             }
-           
-
-            await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/dados_sociais.jpg`, fullPage:true}).then(t=>{
-                obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/dados_sociais.jpg`;
-            });
+            await page.waitForTimeout(3000);
 
             await page.evaluate(()=>{ return document.querySelector('button.btn.green.default').click()});
 

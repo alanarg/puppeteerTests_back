@@ -41,6 +41,8 @@ const DadosFamilia = async (req,page,i,c) =>{
             await page.keyboard.press('Tab');
             await page.keyboard.press('Tab');
             await page.keyboard.press('Tab');
+            await page.keyboard.press('Tab');
+
            
 
             await page.keyboard.type(entradas.nomeCompleto, {delay:100});
@@ -65,19 +67,16 @@ const DadosFamilia = async (req,page,i,c) =>{
          
             await page.keyboard.press('Tab');
             
-            await page.keyboard.type(entradas.dataNascimento, {delay:1000});
+            await page.keyboard.type(entradas.dataNascimento, {delay:100});
 
-            
+            await page.evaluate(()=>{ return document.querySelector('button.btn.green.default').click()});
+
             await page.screenshot({path:`./src/public/VALEUNIVERSIDADE/dados_familia_${i}.jpg`, fullPage:true}).then(async t=>{
-                obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/dados_familia_${i}.jpg`;
-
-                await page.evaluate(()=>{ return document.querySelector('button.btn.green.default').click()});
-
+                obj.print = `${process.env.URL_SYSTEM}/VALEUNIVERSIDADE/dados_familia_${i}.jpg`
+                
             });
 
-
-
-            
+            await page.waitForTimeout(3000);
 
             await page.off('request');
             await page.off('response');
