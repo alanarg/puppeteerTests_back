@@ -45,6 +45,10 @@ const AceiteConfinanciamento = require('./REDESUAS/aceite-confinanciamento');
 const PlanoAcao = require('./REDESUAS/plano-acao');
 const Demonstrativo = require('./REDESUAS/demonstrativo-fisico-financeiro');
 
+//INSTAGRAM
+const login = require('./INSTAGRAM/login');
+const giveLikes = require('./INSTAGRAM/giveLikes');
+
 
 const Regra = require('./models/regra');
 const ObjetoAnterior = require('./models/objetoAnterior');
@@ -858,6 +862,86 @@ app.post("/redesuas", async (req,res)=>{
         return res.json({result:'fail', data:casosFinais});
 
     }
+
+});
+
+
+///Instagram
+
+app.post('/instagram', async (req,res,next)=>{
+    let i =0;
+    // let ambiente = req.body.ambiente;
+    let conf = {
+        headless: true,
+            //  defaultViewport: null,
+            //  args: [
+            //      "--incognito",
+            //      "--no-sandbox",
+            //      "--single-process",
+            //      "--no-zygote"
+            //  ]
+    };
+
+    try {
+            
+    //      //Configuração do lauch() para rodar sem problemas no heroku
+    // if(process.env.URL_SYSTEM === 'http://localhost:8080'){
+
+    //     conf = {headless:false,args: ['--start-maximized']};
+ 
+    //  }else{
+    //       conf = {
+    //          headless: true,
+    //          defaultViewport: null,
+    //          args: [
+    //              "--incognito",
+    //              "--no-sandbox",
+    //              "--single-process",
+    //              "--no-zygote"
+    //          ]
+    //      };
+ 
+  
+    //  }
+
+
+        const browser = await puppeteer.launch({headless:false,args: ['--start-maximized']});
+
+        const page = await browser.newPage();
+
+
+   
+        
+        //função de navegação por URL            
+        await page.goto(`https://www.instagram.com/`);
+
+        await login(req.body.login,page);
+
+        while  (i<req.body.login.nomes.length) {
+                // await latestPage.goto(`http://hom.redesuas.ms.gov.br/Cofinanciamento/Consultar`);
+                
+                await giveLikes(req.body.login.nomes[i],page);
+                await page.waitForTimeout(2000);
+
+    
+                i++;
+        }
+
+
+
+
+            
+         res.json({result:'success', data:casosFinais});
+
+        
+    } catch (error) {
+        res.status(400);
+        res.send('error'+error);
+    
+    }        
+    
+
+
 
 });
 
